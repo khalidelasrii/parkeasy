@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:parkeasy/core/exeption/auth_exeption.dart';
 import 'package:parkeasy/features/auth/data/models/user_model.dart';
+import 'package:parkeasy/features/auth/domain/entities/user_entity.dart';
 
 class FirebaseFirestorService {
   final FirebaseFirestore _firestore;
@@ -12,7 +13,8 @@ class FirebaseFirestorService {
     try {
       final docSnapshot = await _firestore.collection('users').doc(uid).get();
       if (docSnapshot.exists) {
-        return UserModel.fromJson(docSnapshot.data()!);
+        return UserModel.fromUserEntity(
+            UserEntity.fromJson(docSnapshot.data()!));
       }
       return null;
     } catch (e) {

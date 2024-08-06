@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:parkeasy/core/exeption/auth_exeption.dart';
 import 'package:parkeasy/features/auth/data/datasources/firebase_services.dart';
+import 'package:parkeasy/features/auth/data/models/user_model.dart';
 import 'package:parkeasy/features/auth/domain/entities/user_entity.dart';
 import 'package:parkeasy/features/auth/domain/repositories/auth_repository.dart';
 class AuthRepositoryImpl implements AuthRepository {
@@ -39,7 +40,7 @@ class AuthRepositoryImpl implements AuthRepository {
         // Create new user if not exists
         user =
             UserEntity(id: uid, phoneNumber: userCredential.user?.phoneNumber);
-        await _firebaseServices.firebaseFirestorService.createUserData(user);
+        await _firebaseServices.firebaseFirestorService.createUserData(UserModel.fromUserEntity(user));
       }
 
       return Right(user);
