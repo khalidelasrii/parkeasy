@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "75045023000",
+    "firebase_url": "https://park-ease-421508-default-rtdb.firebaseio.com",
+    "project_id": "park-ease-421508",
+    "storage_bucket": "park-ease-421508.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75045023000:android:5715a63f327960928ac26d",
+        "android_client_info": {
+          "package_name": "com.example.applicationparck"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "75045023000-f8pd7bdlgb58j91ql972vkfpmn2h99qd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.applicationparck",
+            "certificate_hash": "a76281ada97158a3ac6fc59adb9de2726515174e"
+          }
+        },
+        {
+          "client_id": "75045023000-60204ri0klntl4q3auvk8i24te3tajov.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoD9hFryUm82tq5TucCGqZ85x5U9HR58A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "75045023000-60204ri0klntl4q3auvk8i24te3tajov.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "75045023000-06bf1mgcub55cqii0232cf66ra1r0o7u.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.applicationparck"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
