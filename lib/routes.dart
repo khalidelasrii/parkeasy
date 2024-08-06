@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:parkeasy/features/auth/presentation/pages/auth_page.dart';
+import 'package:parkeasy/features/auth/presentation/pages/verification_otp.dart';
+import 'package:parkeasy/features/auth/presentation/widgets/auth_info.dart';
 
 class Routes {
   static const String home = '/';
@@ -78,18 +80,23 @@ class Routes {
       //   path: phoneGest,
       //   builder: (context, state) => const PhoneScreenGest(),
       // ),
-      // GoRoute(
-      //   path: phoneUser,
-      //   builder: (context, state) => const PhoneScreen(),
-      // ),
+      GoRoute(
+        path: phoneUser,
+        builder: (context, state) => const AuthPage(),
+      ),
       // GoRoute(
       //   path: informationCompleteUser,
       //   builder: (context, state) => const InformationComplete(),
       // ),
-      // GoRoute(
-      //   path: verificationGest,
-      //   builder: (context, state) => const Verification(),
-      // ),
+      GoRoute(
+          path: verificationGest,
+          builder: (context, state) {
+            AuthInfo authInfo = state.extra as AuthInfo;
+            return VerificationOtp(
+              verificationId: authInfo.verificationId!,
+              phoneNumber: authInfo.phoneNumber!,
+            );
+          }),
       // GoRoute(
       //   path: parkEaseNombre,
       //   builder: (context, state) => const ParkEaseScreenNomber(),

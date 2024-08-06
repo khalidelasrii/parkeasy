@@ -5,8 +5,9 @@ class AuthState extends Equatable {
   final UserEntity? user;
   final String? verificationId;
   final String? error;
-
+  final String? phoneNumber;
   const AuthState({
+    this.phoneNumber,
     required this.status,
     this.user,
     this.verificationId,
@@ -32,4 +33,3 @@ class AuthState extends Equatable {
   @override
   List<Object?> get props => [status, user, verificationId, error];
 }
-

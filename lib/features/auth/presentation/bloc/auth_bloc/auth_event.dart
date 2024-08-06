@@ -10,7 +10,7 @@ abstract class AuthEvent extends Equatable {
 class UserLoginPhoneEvent extends AuthEvent {
   final String phone;
 
-  const UserLoginPhoneEvent(this.phone);
+  const UserLoginPhoneEvent({required this.phone});
 
   @override
   List<Object> get props => [phone];
@@ -25,3 +25,5 @@ class VerificationOTPEvent extends AuthEvent {
   @override
   List<Object> get props => [sms, verificationId];
 }
+
+class GoogleSignInEvent extends AuthEvent {}

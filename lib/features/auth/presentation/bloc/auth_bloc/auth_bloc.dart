@@ -13,6 +13,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required this.repository}) : super(AuthState.initial()) {
     on<UserLoginPhoneEvent>(_onUserLoginPhone);
     on<VerificationOTPEvent>(_onVerificationOTP);
+    on<GoogleSignInEvent>(_onGoogleSignIn);
+  }
+  FutureOr<void> _onGoogleSignIn(
+      GoogleSignInEvent event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(status: AppStatus.loading));
+    final result = await repository.signInWithGoogle();
+    result.fold(
+      (failure) => emit(state.copyWith(
+        status: AppStatus.error,
+        error: failure.message,
+      )),
+      (user) => emit(state.copyWith(
+        status: user.accountStatus == AccountStatus.initial
+            ? AppStatus.infos
+            : AppStatus.success,
+        user: user,
+      )),
+    );
   }
 
   FutureOr<void> _onUserLoginPhone(
