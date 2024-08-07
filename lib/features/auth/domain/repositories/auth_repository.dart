@@ -6,6 +6,6 @@ abstract class AuthRepository {
   Future<Either<AuthException, String>> signInWithPhone(String phone);
   Future<Either<AuthException, UserEntity>> verificationOTP(
       String sms, String verificationId);
-
   Future<Either<AuthException, UserEntity>> signInWithGoogle();
+  Future<Either<AuthException, Unit>> signOut();
 }

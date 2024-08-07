@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:parkeasy/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:parkeasy/features/auth/presentation/bloc/language_bloc/language_cubit.dart';
 import 'package:parkeasy/features/auth/presentation/bloc/theme_bloc/theme_cubit.dart';
 import 'package:parkeasy/firebase_options.dart';
@@ -14,12 +15,13 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await di.init(); // Initialize services with GetIt
+  await di.init();
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider<LanguageBloc>(create: (context) => LanguageBloc()),
         BlocProvider<ThemeBloc>(create: (context) => ThemeBloc()),
+        BlocProvider<AuthBloc>(create: (context) => di.sl<AuthBloc>()),
       ],
       child: const MyApp(),
     ),
@@ -36,6 +38,7 @@ class MyApp extends StatelessWidget {
         return BlocBuilder<ThemeBloc, ThemeState>(
           builder: (context, themeState) {
             return MaterialApp.router(
+              debugShowCheckedModeBanner: false,
               title: 'Parkeasy',
               theme: themeState.themeData,
               darkTheme: themeState.darkTheme,

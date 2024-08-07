@@ -85,4 +85,14 @@ class AuthRepositoryImpl implements AuthRepository {
           AuthException('An unexpected error occurred during Google sign-in'));
     }
   }
+
+  @override
+  Future<Either<AuthException, Unit>> signOut() async {
+    try {
+      await _firebaseServices.firebaseAuthService.signOut();
+      return right(unit);
+    } catch (e) {
+      return left(AuthException(e.toString()));
+    }
+  }
 }

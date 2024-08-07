@@ -27,3 +27,5 @@ class VerificationOTPEvent extends AuthEvent {
 }
 
 class GoogleSignInEvent extends AuthEvent {}
+
+class SingOutEvent extends AuthEvent{}

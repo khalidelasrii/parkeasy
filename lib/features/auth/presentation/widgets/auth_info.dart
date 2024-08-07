@@ -2,9 +2,9 @@ import 'package:equatable/equatable.dart';
 
 class AuthInfo extends Equatable {
   final String? verificationId;
-  final String? phoneNumber;
-  const AuthInfo(this.phoneNumber, this.verificationId);
+  final String? sms;
+  const AuthInfo(this.sms, this.verificationId);
 
   @override
-  List<Object?> get props => [phoneNumber, verificationId];
+  List<Object?> get props => [sms, verificationId];
 }

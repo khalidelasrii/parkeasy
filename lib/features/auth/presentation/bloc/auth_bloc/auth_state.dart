@@ -5,9 +5,9 @@ class AuthState extends Equatable {
   final UserEntity? user;
   final String? verificationId;
   final String? error;
-  final String? phoneNumber;
+  final String? sms;
   const AuthState({
-    this.phoneNumber,
+    this.sms,
     required this.status,
     this.user,
     this.verificationId,

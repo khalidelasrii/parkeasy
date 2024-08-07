@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:parkeasy/core/exeption/auth_exeption.dart';
@@ -13,6 +14,12 @@ class FirebaseAuthService {
     GoogleSignIn? googleSignIn,
   })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn();
+
+  Future<Unit> signOut() async {
+    await _firebaseAuth.signOut();
+    return unit;
+  }
+
   Future<UserCredential> signInWithGoogle() async {
     try {
       // Trigger the Google Sign-In process
@@ -47,6 +54,8 @@ class FirebaseAuthService {
     try {
       final verificationIdCompleter = Completer<String>();
 
+      print("-------------------- $phoneNumber ------------------------");
+
       await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (_) {},
@@ -60,10 +69,13 @@ class FirebaseAuthService {
 
       return verificationIdCompleter.future;
     } on FirebaseAuthException catch (e) {
-      throw AuthException(e.message ?? 'An error occurred during phone sign-in',
+      throw AuthException(
+          e.message ??
+              'Une erreur s\'est produite lors de la connexion par téléphone',
           code: e.code);
     } catch (e) {
-      throw AuthException('An unexpected error occurred during phone sign-in');
+      throw AuthException(
+          'Une erreur inattendue s\'est produite lors de la connexion par téléphone');
     }
   }
 

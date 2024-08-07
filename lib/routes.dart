@@ -1,7 +1,10 @@
 import 'package:go_router/go_router.dart';
 import 'package:parkeasy/features/auth/presentation/pages/auth_page.dart';
+import 'package:parkeasy/features/auth/presentation/pages/information_complete.dart';
+import 'package:parkeasy/features/auth/presentation/pages/onboarding_screen.dart';
 import 'package:parkeasy/features/auth/presentation/pages/verification_otp.dart';
 import 'package:parkeasy/features/auth/presentation/widgets/auth_info.dart';
+import 'package:parkeasy/features/homeScreen/presentation/pages/home_screen.dart';
 
 class Routes {
   static const String home = '/';
@@ -15,23 +18,50 @@ class Routes {
   static const String signUpGest = '/SignUpGest';
   static const String resetPasswordGest = '/ResetPasswordGest';
   static const String profilGest = '/ProfilGest';
-  static const String connectionScreen = '/connectionscreen';
+  static const String connectionScreen = '/onnectionscreen';
   static const String phoneGest = '/PhoneGest';
-  static const String phoneUser = '/PhoneUser';
+  static const String authPage = '/authPage';
   static const String informationCompleteUser = '/informationcompleteuser';
   static const String verificationGest = '/VerificationGest';
   static const String parkEaseNombre = '/ParkEaseNombre';
   static const String badgeScreen = '/BadgeScreen';
   static const String carteNationale = '/cartenationale';
   static const String parkScreen = '/parkscreen';
-  static const String verification = '/Verification';
+  static const String verificationOTP = '/VerificationOTP';
+  static const String onboarding = '/onboarding';
 
   static final GoRouter router = GoRouter(
+    initialLocation: onboarding,
     routes: [
-      // GoRoute(
-      //   path: home,
-      //   builder: (context, state) => const HomeScreen(),
-      // ),
+      GoRoute(
+        path: onboarding,
+        redirect: OnboardingScreen.redirect,
+        pageBuilder: (context, state) {
+          return NoTransitionPage(child: OnboardingScreen.page());
+        },
+      ),
+      GoRoute(
+        path: home,
+        redirect: HomeScreen.redirect,
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+          path: verificationOTP,
+          builder: (context, state) {
+            AuthInfo authInfo = state.extra as AuthInfo;
+            return VerificationOtp(
+              verificationId: authInfo.verificationId!,
+              phoneNumber: authInfo.sms!,
+            );
+          }),
+      GoRoute(
+        path: authPage,
+        builder: (context, state) => const AuthPage(),
+      ),
+      GoRoute(
+        path: informationCompleteUser,
+        builder: (context, state) => const InformationCompletePage(),
+      ),
       // GoRoute(
       //   path: profile,
       //   builder: (context, state) => const ProfileScreen(),
@@ -80,23 +110,7 @@ class Routes {
       //   path: phoneGest,
       //   builder: (context, state) => const PhoneScreenGest(),
       // ),
-      GoRoute(
-        path: phoneUser,
-        builder: (context, state) => const AuthPage(),
-      ),
-      // GoRoute(
-      //   path: informationCompleteUser,
-      //   builder: (context, state) => const InformationComplete(),
-      // ),
-      GoRoute(
-          path: verificationGest,
-          builder: (context, state) {
-            AuthInfo authInfo = state.extra as AuthInfo;
-            return VerificationOtp(
-              verificationId: authInfo.verificationId!,
-              phoneNumber: authInfo.phoneNumber!,
-            );
-          }),
+
       // GoRoute(
       //   path: parkEaseNombre,
       //   builder: (context, state) => const ParkEaseScreenNomber(),
