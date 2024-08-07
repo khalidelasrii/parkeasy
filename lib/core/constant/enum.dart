@@ -1,4 +1,3 @@
-
 enum AppStatus {
   warning,
   success,
@@ -7,8 +6,9 @@ enum AppStatus {
   infos,
   unknown,
 }
-enum AccountStatus {  initial,
- pending, accepted, blocked }
 
+enum AccountStatus { initial, pending, accepted, blocked }
 
- enum UserRole { admin, manager, user }
+enum UserRole { admin, manager, user }
+
+enum Langs { frensh, english, arabic }

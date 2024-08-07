@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
+import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/core/exeption/auth_exeption.dart';
 import 'package:parkeasy/features/auth/data/datasources/firebase_services.dart';
-import 'package:parkeasy/features/auth/data/models/user_model.dart';
 import 'package:parkeasy/features/auth/domain/entities/user_entity.dart';
 import 'package:parkeasy/features/auth/domain/repositories/auth_repository.dart';
 
@@ -16,7 +16,10 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final verificationId =
           await _firebaseServices.firebaseAuthService.signInWithPhone(phone);
-      return Right(verificationId);
+
+      return verificationId != null
+          ? Right(verificationId)
+          : Left(AuthException("To meny Exeption "));
     } on AuthException catch (e) {
       return Left(e);
     } catch (e) {
@@ -30,22 +33,29 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final userCredential = await _firebaseServices.firebaseAuthService
           .verifyOTP(sms, verificationId);
-      final uid = userCredential.user?.uid;
-      if (uid == null) {
-        return Left(AuthException('User ID is null after verification'));
-      }
 
-      UserEntity? user =
-          await _firebaseServices.firebaseFirestorService.getUserData(uid);
-      if (user == null) {
-        // Create new user if not exists
-        user =
-            UserEntity(id: uid, phoneNumber: userCredential.user?.phoneNumber);
-        await _firebaseServices.firebaseFirestorService
-            .createUserData(UserModel.fromUserEntity(user));
-      }
+      if (userCredential != null) {
+        final bool exist = await _firebaseServices.firebaseFirestorService
+            .checkUserExists(userCredential.uid);
 
-      return Right(user);
+        if (exist) {
+          UserEntity user = await _firebaseServices.firebaseFirestorService
+              .getUserData(userCredential.uid);
+
+          return Right(user);
+        } else {
+          UserEntity newUser = UserEntity(
+            accountStatus: AccountStatus.initial,
+            id: userCredential.uid,
+            email: userCredential.email,
+            phoneNumber: userCredential.phoneNumber,
+            name: userCredential.displayName,
+          );
+
+          return Right(newUser);
+        }
+      }
+      return Left(AuthException('Error after verification'));
     } on AuthException catch (e) {
       return Left(e);
     } catch (e) {
@@ -59,25 +69,28 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final userCredential =
           await _firebaseServices.firebaseAuthService.signInWithGoogle();
-      final uid = userCredential.user?.uid;
-      if (uid == null) {
-        return Left(AuthException('User ID is null after Google sign-in'));
+
+      if (userCredential != null) {
+        final bool exist = await _firebaseServices.firebaseFirestorService
+            .checkUserExists(userCredential.uid);
+        if (exist) {
+          UserEntity user = await _firebaseServices.firebaseFirestorService
+              .getUserData(userCredential.uid);
+          return Right(user);
+        } else {
+          UserEntity newUser = UserEntity(
+            accountStatus: AccountStatus.initial,
+            id: userCredential.uid,
+            email: userCredential.email,
+            phoneNumber: userCredential.phoneNumber,
+            name: userCredential.displayName,
+          );
+
+          return Right(newUser);
+        }
       }
 
-      UserEntity? user =
-          await _firebaseServices.firebaseFirestorService.getUserData(uid);
-      if (user == null) {
-        // Create new user if not exists
-        user = UserEntity(
-          id: uid,
-          email: userCredential.user?.email,
-          name: userCredential.user?.displayName,
-        );
-        await _firebaseServices.firebaseFirestorService
-            .createUserData(UserModel.fromUserEntity(user));
-      }
-
-      return Right(user);
+      return Left(AuthException('User ID is null after Google sign-in'));
     } on AuthException catch (e) {
       return Left(e);
     } catch (e) {
@@ -94,5 +107,16 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e) {
       return left(AuthException(e.toString()));
     }
+  }
+
+  @override
+  Stream<AccountStatus?> getAccountStatusStream() {
+    final user = _firebaseServices.firebaseAuthService.getCurrentUser();
+
+    return user != null
+        ? _firebaseServices.firebaseFirestorService
+            .getAccountStatusStream(user.uid)
+        : const Stream.empty();
+
   }
 }

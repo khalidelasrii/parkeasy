@@ -3,14 +3,14 @@ import 'package:parkeasy/features/auth/data/datasources/firebase_firestor_servic
 
 abstract class FirebaseServices {
   FirebaseAuthService get firebaseAuthService;
-  FirebaseFirestorService get firebaseFirestorService;
+  FirebaseFirestoreService get firebaseFirestorService;
 }
 
 class FirebaseServicesImpl implements FirebaseServices {
   @override
   final FirebaseAuthService firebaseAuthService;
   @override
-  final FirebaseFirestorService firebaseFirestorService;
+  final FirebaseFirestoreService firebaseFirestorService;
 
   FirebaseServicesImpl({
     required this.firebaseAuthService,

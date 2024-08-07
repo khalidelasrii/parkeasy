@@ -70,8 +70,9 @@
     "Trop de tentatives. Réessayez plus tard.": "Too many attempts. Please try again later.",
     "Opération non autorisée": "Unauthorized operation" , 
     "verification_message": "Your verification code for Park Ease: \\$verificationId" , 
-    "Check your messages to validate" : "Check your messages to validate",
+    "Check your messages to validate" : "Enter the confirmation code to confirm your account",
     "Verify" : "Verify", 
-    "resend code" : "resend code"
+    "resend code" : "resend code",
+    "Pas recu":"I did not receive the code"
 
 }

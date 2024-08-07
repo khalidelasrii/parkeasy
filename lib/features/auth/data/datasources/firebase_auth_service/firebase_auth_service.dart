@@ -17,30 +17,32 @@ class FirebaseAuthService {
 
   Future<Unit> signOut() async {
     await _firebaseAuth.signOut();
+    await _googleSignIn.signOut();
     return unit;
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    try {
-      // Trigger the Google Sign-In process
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+  User? getCurrentUser() {
+    return _firebaseAuth.currentUser;
+  }
 
+  Future<User?> signInWithGoogle() async {
+    try {
+      await _googleSignIn.signOut();
+
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         throw AuthException('Google Sign-In was cancelled by the user');
       }
 
-      // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
-
-      // Create a new credential
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-
-      // Sign in to Firebase with the Google credential
-      return await _firebaseAuth.signInWithCredential(credential);
+      final userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
+      return userCredential.user;
     } on FirebaseAuthException catch (e) {
       throw AuthException(
           e.message ?? 'An error occurred during Google sign-in',
@@ -50,46 +52,51 @@ class FirebaseAuthService {
     }
   }
 
-  Future<String> signInWithPhone(String phoneNumber) async {
+  Future<String?> signInWithPhone(String phoneNumber) async {
+    final completer = Completer<String?>();
     try {
-      final verificationIdCompleter = Completer<String>();
-
-      print("-------------------- $phoneNumber ------------------------");
-
       await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
-        verificationCompleted: (_) {},
-        verificationFailed: (e) =>
-            throw FirebaseAuthException(code: e.code, message: e.message),
-        codeSent: (String verificationId, int? resendToken) {
-          verificationIdCompleter.complete(verificationId);
+        timeout: const Duration(seconds: 60),
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          try {
+            await _firebaseAuth.signInWithCredential(credential);
+            completer.complete(null);
+          } catch (e) {
+            completer
+                .completeError(AuthException('Credential verification failed'));
+          }
         },
-        codeAutoRetrievalTimeout: (_) {},
+        verificationFailed: (FirebaseAuthException e) {
+          completer.completeError(
+              AuthException(e.message ?? 'Phone number verification failed'));
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          completer.complete(verificationId);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          if (!completer.isCompleted) {
+            completer.complete(verificationId);
+          }
+        },
       );
-
-      return verificationIdCompleter.future;
-    } on FirebaseAuthException catch (e) {
-      throw AuthException(
-          e.message ??
-              'Une erreur s\'est produite lors de la connexion par téléphone',
-          code: e.code);
     } catch (e) {
-      throw AuthException(
-          'Une erreur inattendue s\'est produite lors de la connexion par téléphone');
+      completer.completeError(AuthException('An unexpected error occurred'));
     }
+    return completer.future;
   }
 
-  Future<UserCredential> verifyOTP(String sms, String verificationId) async {
+  Future<User?> verifyOTP(String sms, String verificationId) async {
     try {
       final credential = PhoneAuthProvider.credential(
         verificationId: verificationId,
         smsCode: sms,
       );
-      return await _firebaseAuth.signInWithCredential(credential);
+      final userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
+      return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      throw AuthException(
-          e.message ?? 'An error occurred during OTP verification',
-          code: e.code);
+      throw AuthException(e.message ?? 'OTP verification failed');
     } catch (e) {
       throw AuthException(
           'An unexpected error occurred during OTP verification');

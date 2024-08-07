@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:parkeasy/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:parkeasy/routes.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -28,6 +29,7 @@ class HomeScreen extends StatelessWidget {
         child: ElevatedButton(
             onPressed: () {
               BlocProvider.of<AuthBloc>(context).add(SingOutEvent());
+              context.go(Routes.authPage);
             },
             child: Text('Bienvenue dans l\'application!')),
       ),

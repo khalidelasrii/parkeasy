@@ -1,6 +1,11 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:parkeasy/core/constant/enum.dart';
+import 'package:parkeasy/core/services/local_service/local_controller.dart';
+import 'package:parkeasy/core/services/shared_pref_service.dart';
 import 'package:parkeasy/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:parkeasy/features/auth/presentation/bloc/language_bloc/language_cubit.dart';
 import 'package:parkeasy/features/auth/presentation/bloc/theme_bloc/theme_cubit.dart';
@@ -12,24 +17,47 @@ import 'package:parkeasy/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseAppCheck.instance
+      .activate(androidProvider: AndroidProvider.debug);
   await di.init();
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider<LanguageBloc>(create: (context) => LanguageBloc()),
-        BlocProvider<ThemeBloc>(create: (context) => ThemeBloc()),
-        BlocProvider<AuthBloc>(create: (context) => di.sl<AuthBloc>()),
+        BlocProvider(create: (_) => LanguageBloc()),
+        BlocProvider(create: (_) => ThemeBloc()),
+        BlocProvider(create: (_) => di.sl<AuthBloc>()),
       ],
       child: const MyApp(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late LocalController localController;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeLocalController();
+  }
+
+  Future<void> _initializeLocalController() async {
+    final sharedPrefService = await SharedPrefService.initializeService();
+    localController = LocalController(sharedPrefService: sharedPrefService);
+    localController.addListenner(onLocalChange);
+  }
+
+  void onLocalChange() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,38 +65,71 @@ class MyApp extends StatelessWidget {
       builder: (context, languageState) {
         return BlocBuilder<ThemeBloc, ThemeState>(
           builder: (context, themeState) {
-            return MaterialApp.router(
-              debugShowCheckedModeBanner: false,
-              title: 'Parkeasy',
-              theme: themeState.themeData,
-              darkTheme: themeState.darkTheme,
-              themeMode: themeState.themeMode,
-              supportedLocales: const [
-                Locale('fr'),
-                Locale('en'),
-                Locale('ar')
-              ],
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              locale: Locale(languageState.selectedLanguage),
-              localeResolutionCallback: (deviceLocale, supportedLocales) {
-                for (var locale in supportedLocales) {
-                  if (deviceLocale != null &&
-                      deviceLocale.languageCode == locale.languageCode) {
-                    return deviceLocale;
-                  }
-                }
-                return supportedLocales.first;
+            return BlocConsumer<AuthBloc, AuthState>(
+              listener: (context, state) {
+                _navigateBasedOnStatus(context, state.user?.accountStatus);
               },
-              routerConfig: Routes.router,
+              builder: (context, state) {
+                return MaterialApp.router(
+                  debugShowCheckedModeBanner: false,
+                  title: 'Parkeasy',
+                  theme: themeState.themeData,
+                  darkTheme: themeState.darkTheme,
+                  themeMode: themeState.themeMode,
+                  supportedLocales: const [
+                    Locale('fr'),
+                    Locale('en'),
+                    Locale('ar')
+                  ],
+                  localizationsDelegates: const [
+                    AppLocalizations.delegate,
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  locale: Locale(languageState.selectedLanguage),
+                  localeResolutionCallback: (deviceLocale, supportedLocales) {
+                    for (var locale in supportedLocales) {
+                      if (deviceLocale != null &&
+                          deviceLocale.languageCode == locale.languageCode) {
+                        return deviceLocale;
+                      }
+                    }
+                    return supportedLocales.first;
+                  },
+                  routerConfig: Routes.router,
+                );
+              },
             );
           },
         );
       },
     );
+  }
+
+  void _navigateBasedOnStatus(BuildContext context, AccountStatus? state) {
+    switch (state) {
+      case AccountStatus.blocked:
+        context.go(Routes.authPage);
+        break;
+      case AccountStatus.initial:
+        context.go(Routes.informationCompleteUser);
+        break;
+      case AccountStatus.pending:
+        context.go(Routes.registrationConfirmationPage);
+        break;
+      case AccountStatus.accepted:
+        context.go(Routes.home);
+        break;
+      default:
+        context.go(Routes.onboarding);
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    localController.removeListener();
+    super.dispose();
   }
 }

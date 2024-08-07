@@ -33,17 +33,20 @@ class _AuthPageState extends State<AuthPage> {
       resizeToAvoidBottomInset: false,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
+          print('Auth State -------------- $state -----------------');
           if (state.status == AppStatus.success &&
               state.verificationId != null) {
             final AuthInfo authInfo =
                 AuthInfo(state.verificationId, phoneNumber);
             context.go(Routes.verificationOTP, extra: authInfo);
-          } else if (state.status == AppStatus.success && state.user != null) {
+          } else if (state.status == AppStatus.infos && state.user != null) {
             if (state.user!.accountStatus == AccountStatus.initial) {
               context.go(Routes.informationCompleteUser);
             } else {
               context.go(Routes.home);
             }
+          } else if (state.status == AppStatus.success && state.user != null) {
+            context.go(Routes.home);
           } else if (state.status == AppStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.error ?? 'An error occurred')),
@@ -95,8 +98,54 @@ class _AuthPageState extends State<AuthPage> {
                                   phoneNumber = value.completeNumber;
                                 });
                               },
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                    color: Colors.blue,
+                                    width: 2,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                    color: Colors.blueAccent,
+                                    width: 2,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                    color: Colors.blue,
+                                    width: 1,
+                                  ),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1,
+                                  ),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                    color: Colors.redAccent,
+                                    width: 2,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 15, horizontal: 10),
+                              ),
+                              dropdownTextStyle: const TextStyle(
+                                fontSize: 17,
+                                color: Colors.black,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 17,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             if (state.error != null)

@@ -26,13 +26,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<GoogleSignInEvent>(_onGoogleSignIn);
     on<SingOutEvent>(_onSingOut);
   }
-
+  
   FutureOr<void> _onSingOut(SingOutEvent event, Emitter<AuthState> emit) async {
     final out = await singOutUseCase();
     out.fold((exp) {
       emit(state.copyWith(status: AppStatus.error, error: exp.code));
     }, (_) {
-      emit(state.copyWith(status: AppStatus.success, user: null));
+      // emit(state.copyWith(status: AppStatus.success, user: null));
     });
   }
 
@@ -42,10 +42,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await signInWithGoogleUseCase();
     result.fold(
       (failure) => emit(state.copyWith(
+        verificationId: null,
         status: AppStatus.error,
         error: failure.message,
       )),
       (user) => emit(state.copyWith(
+        verificationId: null,
         status: user.accountStatus == AccountStatus.initial
             ? AppStatus.infos
             : AppStatus.success,
@@ -58,7 +60,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       UserLoginPhoneEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AppStatus.loading));
 
-    print("------------------- ${event.phone}");
     final result = await signInWithPhoneUseCase(event.phone);
     result.fold(
       (failure) => emit(state.copyWith(
@@ -76,17 +77,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       VerificationOTPEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AppStatus.loading));
     final result = await verificationOTPEvent(event.sms, event.verificationId);
-    result.fold(
-      (failure) => emit(state.copyWith(
-        status: AppStatus.error,
-        error: failure.message,
-      )),
-      (user) => emit(state.copyWith(
-        status: user.accountStatus == AccountStatus.initial
-            ? AppStatus.infos
-            : AppStatus.success,
-        user: user,
-      )),
-    );
+
+    result.fold((resultExp) {
+      emit(state.copyWith(
+          status: AppStatus.error,
+          error: "otp_verification_error:${resultExp.message}"));
+    }, (resultUser) {
+      if (resultUser.accountStatus == AccountStatus.initial) {
+        emit(state.copyWith(status: AppStatus.infos, user: resultUser));
+      } else if (resultUser.accountStatus != AccountStatus.pending) {
+        emit(state.copyWith(status: AppStatus.success, user: resultUser));
+      } else {
+        emit(state.copyWith(status: AppStatus.unknown, user: resultUser));
+      }
+    });
   }
 }

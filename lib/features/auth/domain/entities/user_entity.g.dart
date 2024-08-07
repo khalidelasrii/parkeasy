@@ -26,8 +26,9 @@ Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
       'name': instance.name,
       'email': instance.email,
       'phoneNumber': instance.phoneNumber,
-      'accountStatus': _$AccountStatusEnumMap[instance.accountStatus],
-      'userRole': _$UserRoleEnumMap[instance.userRole],
+      'accountStatus': _$AccountStatusEnumMap[
+          instance.accountStatus ?? AccountStatus.initial],
+      'userRole': _$UserRoleEnumMap[instance.userRole ?? UserRole.user],
       'carPlateNumber': instance.carPlateNumber,
       'parkingSpot': instance.parkingSpot,
       'cardFront': instance.cardFront,

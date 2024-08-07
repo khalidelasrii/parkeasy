@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/core/exeption/auth_exeption.dart';
 import 'package:parkeasy/features/auth/domain/entities/user_entity.dart';
 
@@ -8,4 +9,5 @@ abstract class AuthRepository {
       String sms, String verificationId);
   Future<Either<AuthException, UserEntity>> signInWithGoogle();
   Future<Either<AuthException, Unit>> signOut();
+  Stream<AccountStatus?> getAccountStatusStream();
 }

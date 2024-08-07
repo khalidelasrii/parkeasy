@@ -70,9 +70,11 @@
     "invalide email et mot de pass": "invalide email et mot de pass",
     "le mot de passe est faible": "le mot de passe est faible"  , 
     "verification_message": "Votre code de vérification pour Park Ease: \\$verificationId" ,
-    "Check your messages to validate" : "Vérifiez vos messages pour valider",
+    "Check your messages to validate" : "Entrez le code de confirmation pour confirmer votre compte ",
     "Verify" : "Vérifier",
-    "resend code" : "renvoyer le code"
+    "resend code" : "renvoyer le code",
+
+    "Pas recu":"Je n’ai pas reçu le code"
     
 
 }

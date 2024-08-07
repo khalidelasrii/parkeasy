@@ -29,6 +29,9 @@ class Routes {
   static const String parkScreen = '/parkscreen';
   static const String verificationOTP = '/VerificationOTP';
   static const String onboarding = '/onboarding';
+  static const String registrationConfirmationPage =
+      '/registrationConfirmationPage';
+  static const String defaultPage = '/';
 
   static final GoRouter router = GoRouter(
     initialLocation: onboarding,

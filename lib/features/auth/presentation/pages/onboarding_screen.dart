@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:parkeasy/core/constant/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,30 +27,51 @@ class OnboardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/onboarding.png',
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned(
-            bottom: 30,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('onboardingSeen', true);
-                  context.go('/home');
-                },
-                child: const Text('Commencer'),
-              ),
-            ),
-          ),
-        ],
+      backgroundColor: bluecolor,
+      body: SafeArea(
+        child: Center(
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Expanded(child: SizedBox()),
+
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 90, vertical: 8),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(30)),
+                    child: Image.asset(
+                      'assets/icon-park.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                  child: Image.asset(
+                    'assets/parck-esy.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+
+                // parck-esy.png
+                const Expanded(child: SizedBox()),
+                ElevatedButton(
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('onboardingSeen', true);
+                    context.go('/');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: white,
+                  ),
+                  child: Text('Commencer', style: TextStyle(color: bluecolor)),
+                ),
+                const Expanded(child: SizedBox())
+              ]),
+        ),
       ),
     );
   }

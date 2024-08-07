@@ -4,25 +4,27 @@ import 'package:parkeasy/features/auth/data/datasources/firebase_firestor_servic
 import 'package:parkeasy/features/auth/data/datasources/firebase_services.dart';
 import 'package:parkeasy/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:parkeasy/features/auth/domain/repositories/auth_repository.dart';
+import 'package:parkeasy/features/auth/domain/usecases/get_account_status_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/signIn_with_google_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/sign_in_with_phone_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/sing_out_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/verification_o_t_p_use_case.dart';
 import 'package:parkeasy/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:parkeasy/features/auth/presentation/bloc/compt_status/comptstatus_bloc.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
   // Register Firebase services
   sl.registerLazySingleton<FirebaseAuthService>(() => FirebaseAuthService());
-  sl.registerLazySingleton<FirebaseFirestorService>(
-      () => FirebaseFirestorService());
+  sl.registerLazySingleton<FirebaseFirestoreService>(
+      () => FirebaseFirestoreService());
 
   // Register Firebase services implementation
   sl.registerLazySingleton<FirebaseServices>(
     () => FirebaseServicesImpl(
       firebaseAuthService: sl<FirebaseAuthService>(),
-      firebaseFirestorService: sl<FirebaseFirestorService>(),
+      firebaseFirestorService: sl<FirebaseFirestoreService>(),
     ),
   );
 
@@ -36,6 +38,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => VerificationOTPUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => SignInWithGoogleUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => SingOutUseCase(sl<AuthRepository>()));
+  sl.registerLazySingleton(() => GetAccountStatusUseCase(sl<AuthRepository>()));
 
   // Register BLoC
   sl.registerFactory(() => AuthBloc(
@@ -43,4 +46,6 @@ Future<void> init() async {
       signInWithPhoneUseCase: sl(),
       verificationOTPEvent: sl(),
       singOutUseCase: sl()));
+
+  sl.registerFactory(() => ComptstatusBloc(getAccountStatusUseCase: sl()));
 }
