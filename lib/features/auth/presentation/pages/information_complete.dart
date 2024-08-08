@@ -1,14 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:parkeasy/core/constant/constants.dart';
 import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
-import 'package:parkeasy/features/homeScreen/presentation/pages/home_screen.dart';
+import 'package:parkeasy/routes.dart';
 
 class InformationCompletePage extends StatefulWidget {
-  const InformationCompletePage({Key? key}) : super(key: key);
+  const InformationCompletePage({super.key});
 
   @override
   State<InformationCompletePage> createState() =>
@@ -113,9 +114,8 @@ class _InformationCompletePageState extends State<InformationCompletePage> {
           if (state.status == AppStatus.error) {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.error ?? 'Error')));
-          } else if (state.status == AppStatus.success) {
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const HomeScreen()));
+          } else if (state.status == AppStatus.success && state.user != null) {
+            context.go(Routes.home);
           }
         },
         builder: (context, state) {

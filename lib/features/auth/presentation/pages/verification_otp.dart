@@ -80,7 +80,7 @@ class _VerificationOtpState extends State<VerificationOtp> {
                       builder: (context) => const InformationCompletePage()));
             } else {
               Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()));
+                  MaterialPageRoute(builder: (context) => const HomeScreen()));
             }
           } else if (state.status == AppStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(

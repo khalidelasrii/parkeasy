@@ -39,6 +39,7 @@ class FirebaseStorageService {
         urls.add(await newRef.getDownloadURL());
       } catch (e) {
         print('Error uploading file $i: $e');
+        rethrow;
       }
     }
     return urls;

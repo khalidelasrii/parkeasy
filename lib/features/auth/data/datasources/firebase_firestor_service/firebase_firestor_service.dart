@@ -3,7 +3,6 @@ import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/core/exeption/auth_exeption.dart';
 import 'package:parkeasy/core/extension/acount_status.dart';
 import 'package:parkeasy/features/auth/data/models/user_model.dart';
-import 'package:parkeasy/features/auth/domain/entities/user_entity.dart';
 
 class FirebaseFirestoreService {
   final FirebaseFirestore _firestore;
@@ -26,15 +25,17 @@ class FirebaseFirestoreService {
       if (!docSnapshot.exists) {
         throw AuthException('User does not exist');
       }
-      return UserModel.fromUserEntity(UserEntity.fromJson(docSnapshot.data()!));
+      return UserModel.fromJson(docSnapshot.data()!);
     } catch (e) {
       throw AuthException('Error fetching user data: $e');
     }
   }
 
-  Future<void> createUserData(UserModel user) async {
+  Future<UserModel> createUserData(UserModel user) async {
     try {
       await _firestore.collection('users').doc(user.id).set(user.toJson());
+
+      return await getUserData(user.id!);
     } catch (e) {
       throw AuthException('Error creating user data: $e');
     }
@@ -42,7 +43,10 @@ class FirebaseFirestoreService {
 
   Future<UserModel> updateUserInfo(UserModel user) async {
     try {
-      await _firestore.collection('users').doc(user.id).update(user.toJson());
+      await _firestore
+          .collection('users')
+          .doc(user.id)
+          .update(user.jsonUpdatUserInfo());
       return await getUserData(user.id!);
     } catch (e) {
       throw AuthException('Error updating user info: $e');

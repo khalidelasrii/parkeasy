@@ -23,7 +23,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: const Text('Home'),
       ),
       body: Center(
         child: ElevatedButton(
@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
               BlocProvider.of<AuthBloc>(context).add(SingOutEvent());
               context.go(Routes.authPage);
             },
-            child: Text('Bienvenue dans l\'application!')),
+            child: const Text('Bienvenue dans l\'application!')),
       ),
     );
   }

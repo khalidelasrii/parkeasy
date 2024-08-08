@@ -5,6 +5,7 @@ import 'package:parkeasy/features/auth/presentation/pages/onboarding_screen.dart
 import 'package:parkeasy/features/auth/presentation/pages/verification_otp.dart';
 import 'package:parkeasy/features/auth/presentation/widgets/auth_info.dart';
 import 'package:parkeasy/features/homeScreen/presentation/pages/home_screen.dart';
+import 'package:parkeasy/waiting_page.dart';
 
 class Routes {
   static const String home = '/';
@@ -32,10 +33,19 @@ class Routes {
   static const String registrationConfirmationPage =
       '/registrationConfirmationPage';
   static const String defaultPage = '/';
+  static const String waitingPage = '/waitingPage';
 
   static final GoRouter router = GoRouter(
     initialLocation: onboarding,
     routes: [
+      GoRoute(
+        path: waitingPage,
+        redirect: OnboardingScreen.redirect,
+        pageBuilder: (context, state) {
+          return const NoTransitionPage(child: WaitingPage());
+        },
+      ),
+
       GoRoute(
         path: onboarding,
         redirect: OnboardingScreen.redirect,

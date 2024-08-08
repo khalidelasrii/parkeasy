@@ -1,5 +1,10 @@
 import 'package:parkeasy/features/auth/domain/entities/user_entity.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:parkeasy/core/constant/enum.dart';
 
+part 'user_model.g.dart';
+
+@JsonSerializable()
 class UserModel extends UserEntity {
   const UserModel({
     super.id,
@@ -46,4 +51,11 @@ class UserModel extends UserEntity {
       cardBack: cardBack,
     );
   }
+
+  // Méthodes JSON
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
+  Map<String, dynamic> toJson() => _$UserModelToJson(this);
+
+  Map<String, String?> jsonUpdatUserInfo() => _$jsonUpdatUserInfo(this);
 }

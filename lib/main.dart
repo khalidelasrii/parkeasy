@@ -67,7 +67,6 @@ class _MyAppState extends State<MyApp> {
           builder: (context, themeState) {
             return BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) {
-                
                 return MaterialApp.router(
                   debugShowCheckedModeBanner: false,
                   title: 'Parkeasy',
@@ -107,18 +106,14 @@ class _MyAppState extends State<MyApp> {
 
   RouterConfig<Object> _getRouterConfig(BuildContext context, AuthState state) {
     if (state.status == AppStatus.unknown && state.user == null) {
-      return Routes.router..go(Routes.authPage);
+      return Routes.router..go(Routes.waitingPage);
     } else if (state.user != null) {
-      print("----------------------- ${state.toString()} --------------------");
       switch (state.user?.accountStatus) {
         case AccountStatus.initial:
           return Routes.router..go(Routes.informationCompleteUser);
         case AccountStatus.pending:
         case AccountStatus.blocked:
-          Future.delayed(const Duration(seconds: 1), () {
-            Routes.router.go(Routes.registrationConfirmationPage);
-          });
-          return Routes.router;
+          return Routes.router..go(Routes.registrationConfirmationPage);
         case AccountStatus.accepted:
           return Routes.router;
         default:

@@ -43,12 +43,12 @@ String getErrorMessage(String errorCode, BuildContext context) {
 }
 
 Image backgroundimage = Image.asset('assets/profile.png');
-Color darkcolor = Color(0xFF262A43);
-Color colorblue = Color(0xFFEDEDF7);
+Color darkcolor = const Color(0xFF262A43);
+Color colorblue = const Color(0xFFEDEDF7);
 Color white = Colors.white;
-Color purple = Color(0xFF7A5AF5);
-Color darkmodeback = Color.fromARGB(255, 2, 7, 22);
-Color darkmodeback2 = Color.fromARGB(255, 30, 29, 29);
+Color purple = const Color(0xFF7A5AF5);
+Color darkmodeback = const Color.fromARGB(255, 2, 7, 22);
+Color darkmodeback2 = const Color.fromARGB(255, 30, 29, 29);
 void getSnackbar(BuildContext context, String text) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(

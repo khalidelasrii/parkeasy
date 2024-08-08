@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:parkeasy/core/constant/enum.dart';
-part 'user_entity.g.dart';
 
 @JsonSerializable()
 class UserEntity extends Equatable {
@@ -80,11 +79,8 @@ class UserEntity extends Equatable {
 
   @override
   String toString() {
-    return 'UserEntity(id: $id, name: $name, email: $email, phoneNumber: $phoneNumber, accountStatus: $accountStatus, userRole: $userRole, carPlateNumber: $carPlateNumber, parkingSpot: $parkingSpot, cardFront: $cardFront, cardBack: $cardBack)';
+    return 'UserEntity(profileUrl: $profileUrl ,id: $id, name: $name, email: $email, phoneNumber: $phoneNumber, accountStatus: $accountStatus, userRole: $userRole, carPlateNumber: $carPlateNumber, parkingSpot: $parkingSpot, cardFront: $cardFront, cardBack: $cardBack)';
   }
 
-  // Méthodes JSON
-  factory UserEntity.fromJson(Map<String, dynamic> json) =>
-      _$UserEntityFromJson(json);
-  Map<String, dynamic> toJson() => _$UserEntityToJson(this);
+
 }
