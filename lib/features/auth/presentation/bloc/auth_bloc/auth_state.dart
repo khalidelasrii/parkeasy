@@ -6,6 +6,7 @@ class AuthState extends Equatable {
   final String? verificationId;
   final String? error;
   final String? sms;
+
   const AuthState({
     this.sms,
     required this.status,
@@ -21,6 +22,7 @@ class AuthState extends Equatable {
     UserEntity? user,
     String? verificationId,
     String? error,
+    File? profileImage,
   }) {
     return AuthState(
       status: status ?? this.status,

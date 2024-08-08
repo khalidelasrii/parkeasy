@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/features/auth/domain/entities/user_entity.dart';
+import 'package:parkeasy/features/auth/domain/usecases/get_courent_user_use_case.dart';
+import 'package:parkeasy/features/auth/domain/usecases/save_user_info_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/signIn_with_google_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/sign_in_with_phone_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/sing_out_use_case.dart';
@@ -15,25 +18,75 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignInWithPhoneUseCase signInWithPhoneUseCase;
   final VerificationOTPUseCase verificationOTPEvent;
   final SingOutUseCase singOutUseCase;
-  AuthBloc(
-      {required this.singOutUseCase,
-      required this.signInWithGoogleUseCase,
-      required this.signInWithPhoneUseCase,
-      required this.verificationOTPEvent})
-      : super(AuthState.initial()) {
+  final SaveUserInfoUseCase saveUserInfoUseCase;
+  final GetCourentUserUseCase getCurrentUserUseCase;
+  AuthBloc({
+    required this.getCurrentUserUseCase,
+    required this.singOutUseCase,
+    required this.signInWithGoogleUseCase,
+    required this.signInWithPhoneUseCase,
+    required this.verificationOTPEvent,
+    required this.saveUserInfoUseCase, // Add this
+  }) : super(AuthState.initial()) {
     on<UserLoginPhoneEvent>(_onUserLoginPhone);
     on<VerificationOTPEvent>(_onVerificationOTP);
     on<GoogleSignInEvent>(_onGoogleSignIn);
     on<SingOutEvent>(_onSingOut);
+    on<SaveUserInfoEvent>(_onSaveUserInfo);
+    on<GetCurrentUserEvent>(_onGetCurrentUser);
   }
-  
+
+  FutureOr<void> _onGetCurrentUser(
+      GetCurrentUserEvent event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(status: AppStatus.loading));
+    try {
+      final userOr = await getCurrentUserUseCase();
+      if (userOr != null) {
+        emit(state.copyWith(status: AppStatus.success, user: userOr));
+      } else {
+        emit(state.copyWith(status: AppStatus.unknown, user: userOr));
+      }
+    } catch (e) {
+      emit(state.copyWith(status: AppStatus.error, error: e.toString()));
+    }
+  }
+
+  FutureOr<void> _onSaveUserInfo(
+      SaveUserInfoEvent event, Emitter<AuthState> emit) async {
+    try {
+      emit(state.copyWith(status: AppStatus.loading));
+      final user = await getCurrentUserUseCase();
+
+      final newUser = user?.copyWith(
+          name: event.name,
+          profileFile: event.image,
+          accountStatus: AccountStatus.accepted);
+      if (user != null) {
+        final result = await saveUserInfoUseCase(newUser!);
+        result.fold(
+          (failure) => emit(state.copyWith(
+            status: AppStatus.error,
+            error: failure.message,
+          )),
+          (user) => emit(state.copyWith(
+            status: AppStatus.success,
+            user: user,
+          )),
+        );
+      }
+    } catch (e) {
+      emit(state.copyWith(
+        status: AppStatus.error,
+        error: 'An unexpected error occurred: ${e.toString()}',
+      ));
+    }
+  }
+
   FutureOr<void> _onSingOut(SingOutEvent event, Emitter<AuthState> emit) async {
     final out = await singOutUseCase();
     out.fold((exp) {
       emit(state.copyWith(status: AppStatus.error, error: exp.code));
-    }, (_) {
-      // emit(state.copyWith(status: AppStatus.success, user: null));
-    });
+    }, (_) {});
   }
 
   FutureOr<void> _onGoogleSignIn(

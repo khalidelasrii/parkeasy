@@ -5,6 +5,8 @@ import 'package:parkeasy/features/auth/data/datasources/firebase_services.dart';
 import 'package:parkeasy/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:parkeasy/features/auth/domain/repositories/auth_repository.dart';
 import 'package:parkeasy/features/auth/domain/usecases/get_account_status_use_case.dart';
+import 'package:parkeasy/features/auth/domain/usecases/get_courent_user_use_case.dart';
+import 'package:parkeasy/features/auth/domain/usecases/save_user_info_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/signIn_with_google_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/sign_in_with_phone_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/sing_out_use_case.dart';
@@ -39,13 +41,17 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SignInWithGoogleUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => SingOutUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => GetAccountStatusUseCase(sl<AuthRepository>()));
+  sl.registerLazySingleton(() => SaveUserInfoUseCase(sl<AuthRepository>()));
+  sl.registerLazySingleton(() => GetCourentUserUseCase(sl<AuthRepository>()));
 
   // Register BLoC
   sl.registerFactory(() => AuthBloc(
+      getCurrentUserUseCase: sl(),
       signInWithGoogleUseCase: sl(),
       signInWithPhoneUseCase: sl(),
       verificationOTPEvent: sl(),
-      singOutUseCase: sl()));
+      singOutUseCase: sl(),
+      saveUserInfoUseCase: sl()));
 
   sl.registerFactory(() => ComptstatusBloc(getAccountStatusUseCase: sl()));
 }

@@ -2,7 +2,6 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/core/services/local_service/local_controller.dart';
 import 'package:parkeasy/core/services/shared_pref_service.dart';
@@ -26,7 +25,8 @@ void main() async {
       providers: [
         BlocProvider(create: (_) => LanguageBloc()),
         BlocProvider(create: (_) => ThemeBloc()),
-        BlocProvider(create: (_) => di.sl<AuthBloc>()),
+        BlocProvider(
+            create: (_) => di.sl<AuthBloc>()..add(GetCurrentUserEvent())),
       ],
       child: const MyApp(),
     ),
@@ -65,11 +65,9 @@ class _MyAppState extends State<MyApp> {
       builder: (context, languageState) {
         return BlocBuilder<ThemeBloc, ThemeState>(
           builder: (context, themeState) {
-            return BlocConsumer<AuthBloc, AuthState>(
-              listener: (context, state) {
-                _navigateBasedOnStatus(context, state.user?.accountStatus);
-              },
+            return BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) {
+                
                 return MaterialApp.router(
                   debugShowCheckedModeBanner: false,
                   title: 'Parkeasy',
@@ -79,7 +77,7 @@ class _MyAppState extends State<MyApp> {
                   supportedLocales: const [
                     Locale('fr'),
                     Locale('en'),
-                    Locale('ar')
+                    Locale('ar'),
                   ],
                   localizationsDelegates: const [
                     AppLocalizations.delegate,
@@ -97,7 +95,7 @@ class _MyAppState extends State<MyApp> {
                     }
                     return supportedLocales.first;
                   },
-                  routerConfig: Routes.router,
+                  routerConfig: _getRouterConfig(context, state),
                 );
               },
             );
@@ -107,24 +105,27 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void _navigateBasedOnStatus(BuildContext context, AccountStatus? state) {
-    switch (state) {
-      case AccountStatus.blocked:
-        context.go(Routes.authPage);
-        break;
-      case AccountStatus.initial:
-        context.go(Routes.informationCompleteUser);
-        break;
-      case AccountStatus.pending:
-        context.go(Routes.registrationConfirmationPage);
-        break;
-      case AccountStatus.accepted:
-        context.go(Routes.home);
-        break;
-      default:
-        context.go(Routes.onboarding);
-        break;
+  RouterConfig<Object> _getRouterConfig(BuildContext context, AuthState state) {
+    if (state.status == AppStatus.unknown && state.user == null) {
+      return Routes.router..go(Routes.authPage);
+    } else if (state.user != null) {
+      print("----------------------- ${state.toString()} --------------------");
+      switch (state.user?.accountStatus) {
+        case AccountStatus.initial:
+          return Routes.router..go(Routes.informationCompleteUser);
+        case AccountStatus.pending:
+        case AccountStatus.blocked:
+          Future.delayed(const Duration(seconds: 1), () {
+            Routes.router.go(Routes.registrationConfirmationPage);
+          });
+          return Routes.router;
+        case AccountStatus.accepted:
+          return Routes.router;
+        default:
+          return Routes.router;
+      }
     }
+    return Routes.router;
   }
 
   @override

@@ -1,8 +1,9 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:parkeasy/core/constant/enum.dart'; // Nécessaire pour les annotations JSON
+import 'package:parkeasy/core/constant/enum.dart';
 part 'user_entity.g.dart';
-
 
 @JsonSerializable()
 class UserEntity extends Equatable {
@@ -14,11 +15,14 @@ class UserEntity extends Equatable {
   final UserRole? userRole;
   final String? carPlateNumber;
   final String? parkingSpot;
-  final String? cardFront; // Informations sur la carte (recto)
-  final String? cardBack; // Informations sur la carte (verso)
-
+  final String? cardFront;
+  final String? cardBack;
+  final File? profileFile;
+  final String? profileUrl;
   const UserEntity({
+    this.profileUrl,
     this.id,
+    this.profileFile,
     this.name,
     this.email,
     this.phoneNumber,
@@ -45,6 +49,7 @@ class UserEntity extends Equatable {
       ];
 
   UserEntity copyWith({
+    File? profileFile,
     String? id,
     String? name,
     String? email,
@@ -55,8 +60,11 @@ class UserEntity extends Equatable {
     String? parkingSpot,
     String? cardFront,
     String? cardBack,
+    String? profileUrl,
   }) {
     return UserEntity(
+      profileUrl: profileUrl ?? this.profileUrl,
+      profileFile: profileFile ?? this.profileFile,
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
@@ -76,6 +84,7 @@ class UserEntity extends Equatable {
   }
 
   // Méthodes JSON
-  factory UserEntity.fromJson(Map<String, dynamic> json) => _$UserEntityFromJson(json);
+  factory UserEntity.fromJson(Map<String, dynamic> json) =>
+      _$UserEntityFromJson(json);
   Map<String, dynamic> toJson() => _$UserEntityToJson(this);
 }

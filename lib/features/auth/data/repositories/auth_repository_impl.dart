@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/core/exeption/auth_exeption.dart';
 import 'package:parkeasy/features/auth/data/datasources/firebase_services.dart';
+import 'package:parkeasy/features/auth/data/models/user_model.dart';
 import 'package:parkeasy/features/auth/domain/entities/user_entity.dart';
 import 'package:parkeasy/features/auth/domain/repositories/auth_repository.dart';
 
@@ -51,7 +52,8 @@ class AuthRepositoryImpl implements AuthRepository {
             phoneNumber: userCredential.phoneNumber,
             name: userCredential.displayName,
           );
-
+          await _firebaseServices.firebaseFirestorService
+              .createUserData(UserModel.fromUserEntity(newUser));
           return Right(newUser);
         }
       }
@@ -85,6 +87,8 @@ class AuthRepositoryImpl implements AuthRepository {
             phoneNumber: userCredential.phoneNumber,
             name: userCredential.displayName,
           );
+          await _firebaseServices.firebaseFirestorService
+              .createUserData(UserModel.fromUserEntity(newUser));
 
           return Right(newUser);
         }
@@ -117,6 +121,36 @@ class AuthRepositoryImpl implements AuthRepository {
         ? _firebaseServices.firebaseFirestorService
             .getAccountStatusStream(user.uid)
         : const Stream.empty();
+  }
 
+  @override
+  Future<Either<AuthException, UserEntity>> saveUserInfoUseCase(
+      UserEntity userEntity) async {
+    try {
+      final user = await _firebaseServices.firebaseFirestorService
+          .updateUserInfo(UserModel.fromUserEntity(userEntity));
+      return Right(user);
+    } catch (e) {
+      return Left(AuthException(e.toString()));
+    }
+  }
+
+  @override
+  Future<UserEntity?> getCourentUser() async {
+    try {
+      final userCredential =
+          _firebaseServices.firebaseAuthService.getCurrentUser();
+
+      if (userCredential != null) {
+        final userData = await _firebaseServices.firebaseFirestorService
+            .getUserData(userCredential.uid);
+
+        return userData;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      rethrow;
+    }
   }
 }

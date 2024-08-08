@@ -28,4 +28,13 @@ class VerificationOTPEvent extends AuthEvent {
 
 class GoogleSignInEvent extends AuthEvent {}
 
-class SingOutEvent extends AuthEvent{}
+class SingOutEvent extends AuthEvent {}
+
+class SaveUserInfoEvent extends AuthEvent {
+  final String name;
+  final File? image;
+  const SaveUserInfoEvent({required this.name, this.image});
+}
+
+
+class GetCurrentUserEvent extends AuthEvent {}

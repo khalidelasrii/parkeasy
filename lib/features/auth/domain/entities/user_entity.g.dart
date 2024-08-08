@@ -7,21 +7,22 @@ part of 'user_entity.dart';
 // **************************************************************************
 
 UserEntity _$UserEntityFromJson(Map<String, dynamic> json) => UserEntity(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      email: json['email'] as String,
-      phoneNumber: json['phoneNumber'] as String,
-      accountStatus:
-          $enumDecodeNullable(_$AccountStatusEnumMap, json['accountStatus']),
-      userRole: $enumDecodeNullable(_$UserRoleEnumMap, json['userRole']),
-      carPlateNumber: json['carPlateNumber'] as String?,
-      parkingSpot: json['parkingSpot'] as String?,
-      cardFront: json['cardFront'] as String?,
-      cardBack: json['cardBack'] as String?,
-    );
+    id: json['id'] as String?,
+    name: json['name'] as String?,
+    email: json['email'] as String?,
+    phoneNumber: json['phoneNumber'] as String?,
+    accountStatus:
+        $enumDecodeNullable(_$AccountStatusEnumMap, json['accountStatus']),
+    userRole: $enumDecodeNullable(_$UserRoleEnumMap, json['userRole']),
+    carPlateNumber: json['carPlateNumber'] as String?,
+    parkingSpot: json['parkingSpot'] as String?,
+    cardFront: json['cardFront'] as String?,
+    cardBack: json['cardBack'] as String?,
+    profileUrl: json['cardBack'] as String?);
 
 Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
     <String, dynamic>{
+      "profileUrl": instance.profileUrl,
       'id': instance.id,
       'name': instance.name,
       'email': instance.email,

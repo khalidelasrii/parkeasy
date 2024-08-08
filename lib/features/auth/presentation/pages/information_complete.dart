@@ -1,38 +1,55 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:parkeasy/app_localization.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:parkeasy/core/constant/constants.dart';
-import 'package:parkeasy/features/auth/presentation/bloc/user_information_bloc/user_information_bloc.dart';
-import 'package:parkeasy/features/auth/presentation/bloc/user_information_bloc/user_information_event.dart';
-import 'package:parkeasy/features/auth/presentation/bloc/user_information_bloc/user_information_state.dart';
+import 'package:parkeasy/core/constant/enum.dart';
+import 'package:parkeasy/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:parkeasy/features/homeScreen/presentation/pages/home_screen.dart';
 
-class InformationCompletePage extends StatelessWidget {
+class InformationCompletePage extends StatefulWidget {
   const InformationCompletePage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => UserInformationBloc(),
-      child: _InformationCompleteView(),
-    );
-  }
+  State<InformationCompletePage> createState() =>
+      _InformationCompletePageState();
 }
 
-class _InformationCompleteView extends StatelessWidget {
+class _InformationCompletePageState extends State<InformationCompletePage> {
+  final TextEditingController nameController = TextEditingController();
+  File? imageProfile;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    imageProfile = null;
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Container(
-          color: darkcolor,
-          child: Stack(
-            children: [
-              _buildBackground(),
-              _buildContent(context),
-            ],
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              height: MediaQuery.of(context).size.height,
+              color: darkcolor,
+              child: Stack(
+                children: [
+                  _buildBackground(),
+                  _buildContent(context),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -49,11 +66,19 @@ class _InformationCompleteView extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
-    return Column(
-      children: [
-        _buildLogo(context),
-        _buildForm(context),
-      ],
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width * 0.1),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildLogo(context),
+            _buildForm(context),
+          ],
+        ),
+      ),
     );
   }
 
@@ -71,7 +96,6 @@ class _InformationCompleteView extends StatelessWidget {
   Widget _buildForm(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.8,
-      height: MediaQuery.of(context).size.height * 0.5,
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
             ? darkmodeback
@@ -84,12 +108,12 @@ class _InformationCompleteView extends StatelessWidget {
         ),
       ),
       padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.025),
-      child: BlocConsumer<UserInformationBloc, UserInformationState>(
+      child: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is Error) {
+          if (state.status == AppStatus.error) {
             ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
-          } else if (state is UserInfoSaved) {
+                .showSnackBar(SnackBar(content: Text(state.error ?? 'Error')));
+          } else if (state.status == AppStatus.success) {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => HomeScreen()));
           }
@@ -97,15 +121,16 @@ class _InformationCompleteView extends StatelessWidget {
         builder: (context, state) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'complete information'.tr(context),
+                'Veuillez compléter votre information !',
                 style: TextStyle(
                     fontSize: MediaQuery.of(context).size.height * 0.022),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.025),
-              _buildProfileImage(context, state),
+              _buildProfileImage(context),
               SizedBox(height: MediaQuery.of(context).size.height * 0.025),
               _buildNameField(context),
               SizedBox(height: MediaQuery.of(context).size.height * 0.025),
@@ -117,53 +142,73 @@ class _InformationCompleteView extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileImage(BuildContext context, UserInformationState state) {
-    return CircleAvatar(
-      radius: MediaQuery.of(context).size.height * 0.05,
-      backgroundColor: Colors.transparent,
-      // child: ProfileWidget(
-      //   isloading: state is Loading,
-      //   imagePathbg: 'assets/profil.png',
-      //   isEdit: true,
-      //   imagePath: state is ImageUploaded ? state.imageUrl : '',
-      //   onClicked: () => context.read<UserInformationBloc>().add(PickImage()),
-      // ),
+  Widget _buildProfileImage(BuildContext context) {
+    return GestureDetector(
+      onTap: _pickImage,
+      child: imageProfile == null
+          ? CircleAvatar(
+              radius: MediaQuery.of(context).size.height * 0.05,
+              backgroundColor: Colors.transparent,
+              child: const Icon(Icons.person, size: 40),
+            )
+          : ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(100)),
+              child: Image.file(
+                imageProfile!,
+                height: 100,
+                width: 100,
+                fit: BoxFit.cover,
+              ),
+            ),
     );
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        imageProfile = File(image.path);
+      });
+    }
   }
 
   Widget _buildNameField(BuildContext context) {
-    return TextField(
-      controller: TextEditingController(),
+    return TextFormField(
+      controller: nameController,
       decoration: InputDecoration(
-        labelText: 'Nom Complet'.tr(context),
+        labelText: 'Nom complet',
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: Colors.white),
+          borderSide: const BorderSide(color: Colors.white),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: Colors.white),
+          borderSide: const BorderSide(color: Colors.white),
         ),
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Veuillez entrer votre nom complet';
+        }
+        return null;
+      },
     );
   }
 
-  Widget _buildSubmitButton(BuildContext context, UserInformationState state) {
+  Widget _buildSubmitButton(BuildContext context, AuthState state) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.7,
       height: MediaQuery.of(context).size.height * 0.06,
       child: ElevatedButton(
-        onPressed: state is Loading
+        onPressed: state.status == AppStatus.loading
             ? null
             : () {
-                final bloc = context.read<UserInformationBloc>();
-                final nameField =
-                    context.findAncestorWidgetOfExactType<TextField>();
-                final name = nameField?.controller?.text ?? '';
-                bloc.add(SaveUserInfo(
-                  name: name,
-                  imageFile: state is ImagePicked ? state.imageFile : null,
-                ));
+                if (_formKey.currentState!.validate()) {
+                  final bloc = context.read<AuthBloc>();
+                  bloc.add(SaveUserInfoEvent(
+                      name: nameController.text, image: imageProfile));
+                }
               },
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).brightness == Brightness.dark
@@ -171,11 +216,11 @@ class _InformationCompleteView extends StatelessWidget {
               : bluecolor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
-            side: BorderSide(color: Colors.white),
+            side: const BorderSide(color: Colors.white),
           ),
         ),
-        child: Text(
-          'Suivant'.tr(context),
+        child: const Text(
+          'Enregistrer',
           style: TextStyle(color: Colors.white),
         ),
       ),

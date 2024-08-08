@@ -10,4 +10,8 @@ abstract class AuthRepository {
   Future<Either<AuthException, UserEntity>> signInWithGoogle();
   Future<Either<AuthException, Unit>> signOut();
   Stream<AccountStatus?> getAccountStatusStream();
+  Future<Either<AuthException, UserEntity>> saveUserInfoUseCase(
+      UserEntity userEntity);
+
+ Future<UserEntity?> getCourentUser();
 }
