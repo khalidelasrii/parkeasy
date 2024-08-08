@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:parkeasy/features/auth/data/datasources/firebase_auth_service/firebase_auth_service.dart';
 import 'package:parkeasy/features/auth/data/datasources/firebase_firestor_service/firebase_firestor_service.dart';
 import 'package:parkeasy/features/auth/data/datasources/firebase_services.dart';
+import 'package:parkeasy/features/auth/data/datasources/firebase_storage_service/firebase_storage.dart';
 import 'package:parkeasy/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:parkeasy/features/auth/domain/repositories/auth_repository.dart';
 import 'package:parkeasy/features/auth/domain/usecases/get_account_status_use_case.dart';
@@ -21,10 +22,13 @@ Future<void> init() async {
   sl.registerLazySingleton<FirebaseAuthService>(() => FirebaseAuthService());
   sl.registerLazySingleton<FirebaseFirestoreService>(
       () => FirebaseFirestoreService());
+  sl.registerLazySingleton<FirebaseStorageService>(
+      () => FirebaseStorageService());
 
   // Register Firebase services implementation
   sl.registerLazySingleton<FirebaseServices>(
     () => FirebaseServicesImpl(
+      firebaseStorageService: sl<FirebaseStorageService>(),
       firebaseAuthService: sl<FirebaseAuthService>(),
       firebaseFirestorService: sl<FirebaseFirestoreService>(),
     ),

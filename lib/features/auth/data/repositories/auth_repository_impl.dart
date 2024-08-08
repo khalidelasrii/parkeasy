@@ -20,7 +20,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return verificationId != null
           ? Right(verificationId)
-          : Left(AuthException("To meny Exeption "));
+          : Left(AuthException("To meny Exeption"));
     } on AuthException catch (e) {
       return Left(e);
     } catch (e) {
@@ -127,8 +127,11 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<AuthException, UserEntity>> saveUserInfoUseCase(
       UserEntity userEntity) async {
     try {
+      final url = await _firebaseServices.firebaseStorageService.uploadFile(
+          userEntity.profileFile!, "profiles", "profiles${userEntity.id}");
+      final newUser = userEntity.copyWith(profileUrl: url);
       final user = await _firebaseServices.firebaseFirestorService
-          .updateUserInfo(UserModel.fromUserEntity(userEntity));
+          .updateUserInfo(UserModel.fromUserEntity(newUser));
       return Right(user);
     } catch (e) {
       return Left(AuthException(e.toString()));
