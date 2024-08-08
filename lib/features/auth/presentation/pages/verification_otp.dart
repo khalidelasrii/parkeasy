@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/features/auth/presentation/pages/information_complete.dart';
-import 'package:parkeasy/features/homeScreen/presentation/pages/home_screen.dart';
+import 'package:parkeasy/features/map/presentation/pages/home_screen.dart';
 import 'package:pinput/pinput.dart';
 
 import 'package:parkeasy/core/constant/Constants.dart';

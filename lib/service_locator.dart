@@ -5,7 +5,6 @@ import 'package:parkeasy/features/auth/data/datasources/firebase_services.dart';
 import 'package:parkeasy/features/auth/data/datasources/firebase_storage_service/firebase_storage.dart';
 import 'package:parkeasy/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:parkeasy/features/auth/domain/repositories/auth_repository.dart';
-import 'package:parkeasy/features/auth/domain/usecases/get_account_status_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/get_courent_user_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/save_user_info_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/signIn_with_google_use_case.dart';
@@ -13,19 +12,25 @@ import 'package:parkeasy/features/auth/domain/usecases/sign_in_with_phone_use_ca
 import 'package:parkeasy/features/auth/domain/usecases/sing_out_use_case.dart';
 import 'package:parkeasy/features/auth/domain/usecases/verification_o_t_p_use_case.dart';
 import 'package:parkeasy/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
-import 'package:parkeasy/features/auth/presentation/bloc/compt_status/comptstatus_bloc.dart';
+import 'package:parkeasy/features/map/data/repositories/location_repository_impl.dart';
+import 'package:parkeasy/features/map/data/repositories/parking_repository_impl.dart';
+import 'package:parkeasy/features/map/domain/repositories/location_repository.dart';
+import 'package:parkeasy/features/map/domain/repositories/parking_repository.dart';
+import 'package:parkeasy/features/map/domain/usecases/get_current_location_use_case.dart';
+import 'package:parkeasy/features/map/domain/usecases/get_nearby_parkings_use_case.dart';
+import 'package:parkeasy/features/map/presentation/bloc/map_bloc/map_bloc.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  // Register Firebase services
+  // Register Firebase services --------------------------------------------------------------
   sl.registerLazySingleton<FirebaseAuthService>(() => FirebaseAuthService());
   sl.registerLazySingleton<FirebaseFirestoreService>(
       () => FirebaseFirestoreService());
   sl.registerLazySingleton<FirebaseStorageService>(
       () => FirebaseStorageService());
 
-  // Register Firebase services implementation
+  // Register Firebase services implementation ------------------------------------------------------
   sl.registerLazySingleton<FirebaseServices>(
     () => FirebaseServicesImpl(
       firebaseStorageService: sl<FirebaseStorageService>(),
@@ -34,21 +39,26 @@ Future<void> init() async {
     ),
   );
 
-  // Register repositories
+  // Register repositories -----------------------------------------------------------------------------
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(firebaseServices: sl<FirebaseServices>()),
   );
+  sl.registerLazySingleton<LocationRepository>(() => LocationRepositoryImpl());
+  sl.registerLazySingleton<ParkingRepository>(() => ParkingRepositoryImpl());
 
-  // Register use cases
+  // Register use cases ------------------------------------------------------------------------------
+  //! auth features
   sl.registerLazySingleton(() => SignInWithPhoneUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => VerificationOTPUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => SignInWithGoogleUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => SingOutUseCase(sl<AuthRepository>()));
-  sl.registerLazySingleton(() => GetAccountStatusUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => SaveUserInfoUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => GetCourentUserUseCase(sl<AuthRepository>()));
+  //! Map features
+  sl.registerLazySingleton(() => GetCurrentLocation(sl()));
+  sl.registerLazySingleton(() => GetNearbyParkings(sl()));
 
-  // Register BLoC
+  // Register BLoC --------------------------------------------------------------------------------------
   sl.registerFactory(() => AuthBloc(
       getCurrentUserUseCase: sl(),
       signInWithGoogleUseCase: sl(),
@@ -56,6 +66,8 @@ Future<void> init() async {
       verificationOTPEvent: sl(),
       singOutUseCase: sl(),
       saveUserInfoUseCase: sl()));
+  //! Map features
 
-  sl.registerFactory(() => ComptstatusBloc(getAccountStatusUseCase: sl()));
+  sl.registerFactory(
+      () => MapBloc(locationUseCase: sl(), parkingUseCase: sl()));
 }

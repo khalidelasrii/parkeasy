@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/core/exeption/auth_exeption.dart';
-import 'package:parkeasy/core/extension/acount_status.dart';
 import 'package:parkeasy/features/auth/data/models/user_model.dart';
 
 class FirebaseFirestoreService {
@@ -53,18 +51,5 @@ class FirebaseFirestoreService {
     }
   }
 
-  Stream<AccountStatus?> getAccountStatusStream(String userId) {
-    return _firestore
-        .collection("users")
-        .doc(userId)
-        .snapshots()
-        .map((snapshot) {
-      if (snapshot.exists) {
-        final statusString = snapshot.data()?["accountStatus"];
-        return AccountStatusExtension.fromString(statusString);
-      } else {
-        return null;
-      }
-    });
-  }
+
 }

@@ -4,8 +4,8 @@ import 'package:parkeasy/features/auth/presentation/pages/information_complete.d
 import 'package:parkeasy/features/auth/presentation/pages/onboarding_screen.dart';
 import 'package:parkeasy/features/auth/presentation/pages/verification_otp.dart';
 import 'package:parkeasy/features/auth/presentation/widgets/auth_info.dart';
-import 'package:parkeasy/features/homeScreen/presentation/pages/home_screen.dart';
-import 'package:parkeasy/waiting_page.dart';
+import 'package:parkeasy/features/map/presentation/pages/home_screen.dart';
+import 'package:parkeasy/core/constant/waiting_page.dart';
 
 class Routes {
   static const String home = '/';
