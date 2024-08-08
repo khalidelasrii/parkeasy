@@ -115,7 +115,7 @@ class _InformationCompletePageState extends State<InformationCompletePage> {
                 .showSnackBar(SnackBar(content: Text(state.error ?? 'Error')));
           } else if (state.status == AppStatus.success) {
             Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => HomeScreen()));
+                MaterialPageRoute(builder: (_) => const HomeScreen()));
           }
         },
         builder: (context, state) {
@@ -201,28 +201,28 @@ class _InformationCompletePageState extends State<InformationCompletePage> {
       width: MediaQuery.of(context).size.width * 0.7,
       height: MediaQuery.of(context).size.height * 0.06,
       child: ElevatedButton(
-        onPressed: state.status == AppStatus.loading
-            ? null
-            : () {
-                if (_formKey.currentState!.validate()) {
-                  final bloc = context.read<AuthBloc>();
-                  bloc.add(SaveUserInfoEvent(
-                      name: nameController.text, image: imageProfile));
-                }
-              },
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            final bloc = context.read<AuthBloc>();
+            bloc.add(SaveUserInfoEvent(
+                name: nameController.text, image: imageProfile));
+          }
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).brightness == Brightness.dark
-              ? purple
-              : bluecolor,
+              ? bluecolor
+              : purple,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
             side: const BorderSide(color: Colors.white),
           ),
         ),
-        child: const Text(
-          'Enregistrer',
-          style: TextStyle(color: Colors.white),
-        ),
+        child: state.status == AppStatus.loading
+            ? const CircularProgressIndicator()
+            : const Text(
+                'Enregistrer',
+                style: TextStyle(color: Colors.white),
+              ),
       ),
     );
   }

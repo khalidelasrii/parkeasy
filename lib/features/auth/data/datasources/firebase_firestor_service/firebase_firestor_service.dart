@@ -45,7 +45,7 @@ class FirebaseFirestoreService {
       await _firestore.collection('users').doc(user.id).update(user.toJson());
       return await getUserData(user.id!);
     } catch (e) {
-      rethrow;
+      throw AuthException('Error updating user info: $e');
     }
   }
 

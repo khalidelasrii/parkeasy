@@ -12,10 +12,12 @@ class UserModel extends UserEntity {
     super.parkingSpot,
     super.cardFront,
     super.cardBack,
+    super.profileUrl,
   });
 
   factory UserModel.fromUserEntity(UserEntity entity) {
     return UserModel(
+      profileUrl: entity.profileUrl,
       id: entity.id,
       name: entity.name,
       email: entity.email,
@@ -31,6 +33,7 @@ class UserModel extends UserEntity {
 
   UserEntity toUserEntity() {
     return UserEntity(
+      profileUrl: profileUrl,
       id: id,
       name: name,
       email: email,

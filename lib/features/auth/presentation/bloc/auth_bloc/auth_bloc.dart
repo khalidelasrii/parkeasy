@@ -55,25 +55,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       SaveUserInfoEvent event, Emitter<AuthState> emit) async {
     try {
       emit(state.copyWith(status: AppStatus.loading));
-      final user = await getCurrentUserUseCase();
-
-      final newUser = user?.copyWith(
+      final userCred = await getCurrentUserUseCase();
+      final newUser = userCred!.copyWith(
           name: event.name,
           profileFile: event.image,
           accountStatus: AccountStatus.accepted);
-      if (user != null) {
-        final result = await saveUserInfoUseCase(newUser!);
-        result.fold(
-          (failure) => emit(state.copyWith(
-            status: AppStatus.error,
-            error: failure.message,
-          )),
-          (user) => emit(state.copyWith(
-            status: AppStatus.success,
-            user: user,
-          )),
-        );
-      }
+      final result = await saveUserInfoUseCase(newUser);
+      result.fold(
+        (failure) => emit(state.copyWith(
+          status: AppStatus.error,
+          error: failure.message,
+        )),
+        (user) => emit(state.copyWith(
+          status: AppStatus.success,
+          user: user,
+        )),
+      );
     } catch (e) {
       emit(state.copyWith(
         status: AppStatus.error,

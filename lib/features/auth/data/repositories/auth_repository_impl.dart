@@ -145,15 +145,23 @@ class AuthRepositoryImpl implements AuthRepository {
           _firebaseServices.firebaseAuthService.getCurrentUser();
 
       if (userCredential != null) {
-        final userData = await _firebaseServices.firebaseFirestorService
+        final exists = await _firebaseServices.firebaseFirestorService
+            .checkUserExists(userCredential.uid);
+        if (!exists) {
+          return UserEntity(
+            accountStatus: AccountStatus.initial,
+            id: userCredential.uid,
+            email: userCredential.email,
+            name: userCredential.displayName,
+            phoneNumber: userCredential.phoneNumber,
+          );
+        }
+        return await _firebaseServices.firebaseFirestorService
             .getUserData(userCredential.uid);
-
-        return userData;
-      } else {
-        return null;
       }
+      return null;
     } catch (e) {
-      rethrow;
+      throw AuthException('Error fetching current user: $e');
     }
   }
 }
