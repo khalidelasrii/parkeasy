@@ -2,13 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:parkeasy/core/constant/enum.dart';
-import 'package:parkeasy/features/auth/presentation/pages/information_complete.dart';
-import 'package:parkeasy/features/map/presentation/pages/home_screen.dart';
+import 'package:parkeasy/routes.dart';
 import 'package:pinput/pinput.dart';
-
 import 'package:parkeasy/core/constant/Constants.dart';
-import 'package:parkeasy/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:parkeasy/app_localization.dart';
 
 class VerificationOtp extends StatefulWidget {
@@ -74,13 +73,9 @@ class _VerificationOtpState extends State<VerificationOtp> {
         listener: (context, state) {
           if (state.status == AppStatus.success && state.user != null) {
             if (state.user!.accountStatus == AccountStatus.initial) {
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const InformationCompletePage()));
+              context.go(Routes.informationCompleteUser);
             } else {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()));
+              context.go(Routes.mapPage);
             }
           } else if (state.status == AppStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(

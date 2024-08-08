@@ -5,8 +5,8 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:parkeasy/app_localization.dart';
 import 'package:parkeasy/core/constant/Constants.dart';
 import 'package:parkeasy/core/constant/enum.dart';
-import 'package:parkeasy/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
-import 'package:parkeasy/features/auth/presentation/widgets/auth_info.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/widgets/auth_info.dart';
 import 'package:parkeasy/routes.dart';
 
 class AuthPage extends StatefulWidget {
@@ -43,10 +43,10 @@ class _AuthPageState extends State<AuthPage> {
             if (state.user!.accountStatus == AccountStatus.initial) {
               context.go(Routes.informationCompleteUser);
             } else {
-              context.go(Routes.home);
+              context.go(Routes.mapPage);
             }
           } else if (state.status == AppStatus.success && state.user != null) {
-            context.go(Routes.home);
+            context.go(Routes.mapPage);
           } else if (state.status == AppStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.error ?? 'An error occurred')),

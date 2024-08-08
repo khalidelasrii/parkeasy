@@ -1,4 +1,4 @@
-import 'package:parkeasy/features/auth/domain/entities/user_entity.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/domain/entities/user_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:parkeasy/core/constant/enum.dart';
 

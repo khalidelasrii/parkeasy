@@ -1,78 +1,92 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parkeasy/core/constant/enum.dart';
+import 'package:parkeasy/core/services/shared_pref_service.dart';
+import 'package:parkeasy/features/map/domain/usecases/get_current_location_use_case.dart';
+import 'package:parkeasy/features/map/domain/usecases/get_nearby_parkings_use_case.dart';
 part 'map_event.dart';
 part 'map_state.dart';
 
 class MapBloc extends Bloc<MapEvent, MapState> {
-  final locationUseCase;
-  final parkingUseCase;
+  final GetCurrentLocationUseCase getCurrentLocationUseCase;
+  final GetNearbyParkingsUseCase getNearbyParkingsUseCase;
+  final SharedPrefService sharedPrefService;
 
   MapBloc({
-    required this.locationUseCase,
-    required this.parkingUseCase,
-  }) : super(MapInitial()) {
+    required this.getCurrentLocationUseCase,
+    required this.getNearbyParkingsUseCase,
+    required this.sharedPrefService,
+  }) : super(const MapState()) {
     on<LoadMap>(_onLoadMap);
     on<UpdateCurrentLocation>(_onUpdateCurrentLocation);
     on<FetchNearbyParkings>(_onFetchNearbyParkings);
   }
 
   Future<void> _onLoadMap(LoadMap event, Emitter<MapState> emit) async {
-    emit(MapLoading());
+    emit(state.copyWith(status: MapStatus.loading));
     try {
-      final currentLocation = await locationUseCase.getCurrentLocation();
-      final nearbyParkings =
-          await parkingUseCase.getNearbyParkings(currentLocation);
-      final parkingMarkers = _createParkingMarkers(nearbyParkings);
+      // dernière position
+      final lastLat = sharedPrefService.getValue<double>('lastLat', 48.8566);
+      final lastLng = sharedPrefService.getValue<double>('lastLng', 2.3522);
+      final lastLocation = LatLng(lastLat, lastLng);
+      emit(state.copyWith(
+        status: MapStatus.loaded,
+        currentLocation: lastLocation,
+      ));
 
-      emit(MapLoaded(
+      //  position actuelle
+      final currentLocation = await getCurrentLocationUseCase();
+
+      // update nouvelle position
+      sharedPrefService.putValue('lastLat', currentLocation.latitude);
+      sharedPrefService.putValue('lastLng', currentLocation.longitude);
+
+      emit(state.copyWith(
+        status: MapStatus.loaded,
         currentLocation: currentLocation,
-        parkingMarkers: parkingMarkers,
-        nearbyParkings: nearbyParkings,
       ));
     } catch (e) {
-      emit(MapError('Failed to load map: ${e.toString()}'));
+      emit(state.copyWith(
+        status: MapStatus.error,
+        errorMessage: 'Failed to load map: ${e.toString()}',
+      ));
     }
   }
 
   Future<void> _onUpdateCurrentLocation(
       UpdateCurrentLocation event, Emitter<MapState> emit) async {
     try {
-      final nearbyParkings =
-          await parkingUseCase.getNearbyParkings(event.location);
-      final parkingMarkers = _createParkingMarkers(nearbyParkings);
+      // update nouvelle position
+      sharedPrefService.putValue('lastLat', event.location.latitude);
+      sharedPrefService.putValue('lastLng', event.location.longitude);
+      final nearbyParkings = await getNearbyParkingsUseCase(event.location);
 
-      emit(MapLoaded(
+      emit(state.copyWith(
+        status: MapStatus.loaded,
         currentLocation: event.location,
-        parkingMarkers: parkingMarkers,
-        nearbyParkings: nearbyParkings,
       ));
     } catch (e) {
-      emit(MapError('Failed to update location: ${e.toString()}'));
+      emit(state.copyWith(
+        status: MapStatus.error,
+        errorMessage: 'Failed to update location: ${e.toString()}',
+      ));
     }
   }
 
   Future<void> _onFetchNearbyParkings(
       FetchNearbyParkings event, Emitter<MapState> emit) async {
     try {
-      final nearbyParkings =
-          await parkingUseCase.getNearbyParkings(event.location);
-      final parkingMarkers = _createParkingMarkers(nearbyParkings);
+      final nearbyParkings = await getNearbyParkingsUseCase(event.location);
 
-      emit(MapLoaded(
-        currentLocation: event.location,
-        parkingMarkers: parkingMarkers,
-        nearbyParkings: nearbyParkings,
+      emit(state.copyWith(
+        status: MapStatus.loaded,
       ));
     } catch (e) {
-      emit(MapError('Failed to fetch nearby parkings: ${e.toString()}'));
+      emit(state.copyWith(
+        status: MapStatus.error,
+        errorMessage: 'Failed to fetch nearby parkings: ${e.toString()}',
+      ));
     }
-  }
-
-  Set<Marker> _createParkingMarkers(List<Map<String, dynamic>> parkings) {
-    // Implement your marker creation logic here
-    // Return a Set of Markers
-
-    return {const Marker(markerId: MarkerId(""))};
   }
 }

@@ -1,36 +1,32 @@
 part of 'map_bloc.dart';
 
-abstract class MapState extends Equatable {
-  const MapState();
-  
-  @override
-  List<Object> get props => [];
-}
-
-class MapInitial extends MapState {}
-
-class MapLoading extends MapState {}
-
-class MapLoaded extends MapState {
-  final LatLng currentLocation;
+class MapState extends Equatable {
+  final MapStatus status;
+  final LatLng? currentLocation;
   final Set<Marker> parkingMarkers;
-  final List<Map<String, dynamic>> nearbyParkings;
+  final String? errorMessage;
 
-  const MapLoaded({
-    required this.currentLocation,
-    required this.parkingMarkers,
-    required this.nearbyParkings,
+  const MapState({
+    this.status = MapStatus.initial,
+    this.currentLocation,
+    this.parkingMarkers = const <Marker>{},
+    this.errorMessage,
   });
 
+  MapState copyWith({
+    MapStatus? status,
+    LatLng? currentLocation,
+    Set<Marker>? parkingMarkers,
+    String? errorMessage,
+  }) {
+    return MapState(
+      status: status ?? this.status,
+      currentLocation: currentLocation ?? this.currentLocation,
+      parkingMarkers: parkingMarkers ?? this.parkingMarkers,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
+
   @override
-  List<Object> get props => [currentLocation, parkingMarkers, nearbyParkings];
-}
-
-class MapError extends MapState {
-  final String message;
-
-  const MapError(this.message);
-
-  @override
-  List<Object> get props => [message];
+  List<Object?> get props => [status, currentLocation, parkingMarkers, errorMessage];
 }

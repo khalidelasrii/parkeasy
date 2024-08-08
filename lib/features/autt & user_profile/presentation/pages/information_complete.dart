@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:parkeasy/core/constant/constants.dart';
 import 'package:parkeasy/core/constant/enum.dart';
-import 'package:parkeasy/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:parkeasy/routes.dart';
 
 class InformationCompletePage extends StatefulWidget {
@@ -115,7 +115,7 @@ class _InformationCompletePageState extends State<InformationCompletePage> {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.error ?? 'Error')));
           } else if (state.status == AppStatus.success && state.user != null) {
-            context.go(Routes.home);
+            context.go(Routes.mapPage);
           }
         },
         builder: (context, state) {

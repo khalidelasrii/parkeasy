@@ -12,3 +12,4 @@ enum AccountStatus { initial, pending, accepted, blocked }
 enum UserRole { admin, manager, user }
 
 enum Langs { frensh, english, arabic }
+enum MapStatus { initial, loading, loaded, error }

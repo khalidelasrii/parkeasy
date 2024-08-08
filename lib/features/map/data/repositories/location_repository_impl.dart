@@ -11,7 +11,6 @@ class LocationRepositoryImpl implements LocationRepository {
       if (!serviceEnabled) {
         throw Exception('Location services are disabled.');
       }
-
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();

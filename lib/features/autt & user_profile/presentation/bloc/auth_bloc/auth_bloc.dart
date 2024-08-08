@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:parkeasy/core/constant/enum.dart';
-import 'package:parkeasy/features/auth/domain/entities/user_entity.dart';
-import 'package:parkeasy/features/auth/domain/usecases/get_courent_user_use_case.dart';
-import 'package:parkeasy/features/auth/domain/usecases/save_user_info_use_case.dart';
-import 'package:parkeasy/features/auth/domain/usecases/signIn_with_google_use_case.dart';
-import 'package:parkeasy/features/auth/domain/usecases/sign_in_with_phone_use_case.dart';
-import 'package:parkeasy/features/auth/domain/usecases/sing_out_use_case.dart';
-import 'package:parkeasy/features/auth/domain/usecases/verification_o_t_p_use_case.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/domain/entities/user_entity.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/domain/usecases/get_courent_user_use_case.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/domain/usecases/save_user_info_use_case.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/domain/usecases/signIn_with_google_use_case.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/domain/usecases/sign_in_with_phone_use_case.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/domain/usecases/sing_out_use_case.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/domain/usecases/verification_o_t_p_use_case.dart';
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -83,7 +83,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final out = await singOutUseCase();
     out.fold((exp) {
       emit(state.copyWith(status: AppStatus.error, error: exp.code));
-    }, (_) {});
+    }, (_) {
+      emit(state.copyWith(user: null));
+      add(GetCurrentUserEvent());
+    });
   }
 
   FutureOr<void> _onGoogleSignIn(

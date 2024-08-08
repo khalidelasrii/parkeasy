@@ -1,14 +1,14 @@
 import 'package:go_router/go_router.dart';
-import 'package:parkeasy/features/auth/presentation/pages/auth_page.dart';
-import 'package:parkeasy/features/auth/presentation/pages/information_complete.dart';
-import 'package:parkeasy/features/auth/presentation/pages/onboarding_screen.dart';
-import 'package:parkeasy/features/auth/presentation/pages/verification_otp.dart';
-import 'package:parkeasy/features/auth/presentation/widgets/auth_info.dart';
-import 'package:parkeasy/features/map/presentation/pages/home_screen.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/pages/auth_page.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/pages/information_complete.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/pages/onboarding_screen.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/pages/profile_page/user_profile_page.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/pages/verification_otp.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/widgets/auth_info.dart';
 import 'package:parkeasy/core/constant/waiting_page.dart';
+import 'package:parkeasy/features/map/presentation/pages/map_page.dart';
 
 class Routes {
-  static const String home = '/';
   static const String profile = '/profile';
   static const String mapPage = '/mappage';
   static const String profileUser = '/profileUser';
@@ -32,7 +32,7 @@ class Routes {
   static const String onboarding = '/onboarding';
   static const String registrationConfirmationPage =
       '/registrationConfirmationPage';
-  static const String defaultPage = '/';
+  static const String defaultPage = '/mappage';
   static const String waitingPage = '/waitingPage';
 
   static final GoRouter router = GoRouter(
@@ -54,11 +54,6 @@ class Routes {
         },
       ),
       GoRoute(
-        path: home,
-        redirect: HomeScreen.redirect,
-        builder: (context, state) => const HomeScreen(),
-      ),
-      GoRoute(
           path: verificationOTP,
           builder: (context, state) {
             AuthInfo authInfo = state.extra as AuthInfo;
@@ -75,14 +70,15 @@ class Routes {
         path: informationCompleteUser,
         builder: (context, state) => const InformationCompletePage(),
       ),
-      // GoRoute(
-      //   path: profile,
-      //   builder: (context, state) => const ProfileScreen(),
-      // ),
-      // GoRoute(
-      //   path: mapPage,
-      //   builder: (context, state) => const MapPage(),
-      // ),
+      GoRoute(
+        path: mapPage,
+        builder: (context, state) => const MapPage(),
+      ),
+      GoRoute(
+        path: profile,
+        builder: (context, state) => const UserProfilePage(),
+      ),
+
       // GoRoute(
       //   path: profileUser,
       //   builder: (context, state) => const ProfileScreen(),

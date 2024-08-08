@@ -5,9 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/core/services/local_service/local_controller.dart';
 import 'package:parkeasy/core/services/shared_pref_service.dart';
-import 'package:parkeasy/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
-import 'package:parkeasy/features/auth/presentation/bloc/language_bloc/language_cubit.dart';
-import 'package:parkeasy/features/auth/presentation/bloc/theme_bloc/theme_cubit.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/language_bloc/language_cubit.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/theme_bloc/theme_cubit.dart';
 import 'package:parkeasy/firebase_options.dart';
 import 'package:parkeasy/service_locator.dart' as di;
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -115,12 +115,12 @@ class _MyAppState extends State<MyApp> {
         case AccountStatus.blocked:
           return Routes.router..go(Routes.registrationConfirmationPage);
         case AccountStatus.accepted:
-          return Routes.router;
+          return Routes.router..go(Routes.mapPage);
         default:
           return Routes.router;
       }
     }
-    return Routes.router;
+    return Routes.router..go(Routes.authPage);
   }
 
   @override

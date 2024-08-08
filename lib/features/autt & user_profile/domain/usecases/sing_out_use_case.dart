@@ -1,5 +1,5 @@
 import 'package:parkeasy/core/exeption/auth_exeption.dart';
-import 'package:parkeasy/features/auth/domain/repositories/auth_repository.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/domain/repositories/auth_repository.dart';
 import 'package:dartz/dartz.dart';
 
 

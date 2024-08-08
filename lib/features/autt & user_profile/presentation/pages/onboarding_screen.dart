@@ -14,7 +14,7 @@ class OnboardingScreen extends StatelessWidget {
     FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     if (onboardingSeen) {
       if (firebaseAuth.currentUser != null) {
-        return '/';
+        return '/mappage';
       } else {
         return '/authPage';
       }
@@ -62,7 +62,8 @@ class OnboardingScreen extends StatelessWidget {
                   onPressed: () async {
                     final prefs = await SharedPreferences.getInstance();
                     await prefs.setBool('onboardingSeen', true);
-                    context.go('/');
+                    // ignore: use_build_context_synchronously
+                    context.go('/authPage');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: white,

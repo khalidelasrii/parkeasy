@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:parkeasy/core/constant/constants.dart';
+import 'package:parkeasy/core/constant/enum.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:parkeasy/features/map/presentation/bloc/map_bloc/map_bloc.dart';
-import 'package:parkeasy/features/map/presentation/widgets/google_map_widget.dart';
+import 'package:parkeasy/routes.dart';
 import 'package:parkeasy/service_locator.dart' as di;
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapPage extends StatelessWidget {
   const MapPage({super.key});
@@ -10,7 +16,7 @@ class MapPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => di.sl<MapBloc>(),
+      create: (context) => di.sl<MapBloc>()..add(LoadMap()),
       child: const MapPageContent(),
     );
   }
@@ -21,44 +27,34 @@ class MapPageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Stack(
         children: [
-          GoogleMapWidget(),
-          SearchBar(),
-          ParkingList(),
+          BlocBuilder<MapBloc, MapState>(
+            builder: (context, state) {
+              if (state.status == MapStatus.loaded) {
+                return GoogleMap(
+                  zoomControlsEnabled: false,
+                  initialCameraPosition: CameraPosition(
+                    target: state.currentLocation!,
+                    zoom: 14,
+                  ),
+                  onMapCreated: (GoogleMapController controller) {
+                    context
+                        .read<MapBloc>()
+                        .add(UpdateCurrentLocation(state.currentLocation!));
+                  },
+                  markers: state.parkingMarkers,
+                );
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
+          const Center(child: ParkingList()),
         ],
       ),
-      bottomNavigationBar: BottomNavBar(),
-    );
-  }
-}
-
-class SearchBar extends StatelessWidget {
-  const SearchBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: 50,
-      left: 10,
-      right: 10,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: TextField(
-          decoration: const InputDecoration(
-            hintText: 'Rechercher...',
-            prefixIcon: Icon(Icons.search),
-            border: InputBorder.none,
-          ),
-          onChanged: (query) {
-            context.read<MapBloc>().add(SearchParking(query: query));
-          },
-        ),
-      ),
+      floatingActionButton: const MyfloatingActionButton(),
     );
   }
 }
@@ -70,22 +66,14 @@ class ParkingList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<MapBloc, MapState>(
       builder: (context, state) {
-        if (state is MapLoaded) {
-          return Positioned(
-            bottom: 80,
-            left: 10,
-            right: 10,
-            child: SizedBox(
-              height: 150,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: state.nearbyParkings.length,
-                itemBuilder: (context, index) {
-                  final parking = state.nearbyParkings[index];
-                  return ParkingCard(parking: parking);
-                },
-              ),
-            ),
+        if (state.status == MapStatus.loaded) {
+          return ListView.builder(
+            itemCount: state.parkingMarkers.length,
+            itemBuilder: (context, index) {
+              // final parking =
+              //     state.parkingMarkers.elementAt(index).infoWindow.title!;
+              return ParkingCard();
+            },
           );
         } else {
           return const SizedBox.shrink();
@@ -96,44 +84,105 @@ class ParkingList extends StatelessWidget {
 }
 
 class ParkingCard extends StatelessWidget {
-  final Map<String, dynamic> parking;
+  // final Map<String, dynamic> parking;
 
-  const ParkingCard({super.key, required this.parking});
+  const ParkingCard({
+    super.key,
+    //  required this.parking
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(parking['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text('Places disponibles: ${parking['availableSpots']}'),
-            // Ajoutez d'autres informations sur le parking ici
-          ],
+    return GestureDetector(
+      onTap: () {
+        // Handle navigation to the selected parking spot
+      },
+      child: Card(
+        elevation: 3,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Text(parking['name'],
+              //     style: const TextStyle(fontWeight: FontWeight.bold)),
+              // Text('Places disponibles: ${parking['availableSpots']}'),
+              // Text('Distance: ${parking['distance']} km'),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class BottomNavBar extends StatelessWidget {
-  const BottomNavBar({super.key});
+class MyfloatingActionButton extends StatefulWidget {
+  const MyfloatingActionButton({super.key});
+
+  @override
+  State<MyfloatingActionButton> createState() => _MyfloatingActionButtonState();
+}
+
+class _MyfloatingActionButtonState extends State<MyfloatingActionButton> {
+  TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Carte'),
-        BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Liste'),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-      ],
-      onTap: (index) {
-        // Gérez la navigation ici
-      },
+    return Padding(
+      padding: const EdgeInsets.only(left: 30.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: bluecolor, width: 2),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black26, blurRadius: 4)
+                ],
+              ),
+              child: TextField(
+                controller: searchController,
+                decoration: const InputDecoration(
+                  hintText: 'Rechercher...',
+                  prefixIcon: Icon(Icons.search),
+                  border: InputBorder.none,
+                ),
+                onChanged: (query) {
+                  context.read<MapBloc>().add(SearchParking(query: query));
+                },
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
+            return GestureDetector(
+              onTap: () {
+                context.go(Routes.profile);
+              },
+              child: CircleAvatar(
+                backgroundColor: bluecolor,
+                radius: 30,
+                child: Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(70)),
+                    child: state.user?.profileUrl == null
+                        ? const CircularProgressIndicator()
+                        : CachedNetworkImage(
+                            imageUrl: state.user!.profileUrl!,
+                            fit: BoxFit.cover,
+                            height: 70,
+                            width: 70,
+                          ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
     );
   }
 }
-
-

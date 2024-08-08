@@ -2,11 +2,11 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/core/exeption/auth_exeption.dart';
-import 'package:parkeasy/features/auth/data/datasources/firebase_services.dart';
-import 'package:parkeasy/features/auth/data/datasources/firebase_storage_service/firebase_storage.dart';
-import 'package:parkeasy/features/auth/data/models/user_model.dart';
-import 'package:parkeasy/features/auth/domain/entities/user_entity.dart';
-import 'package:parkeasy/features/auth/domain/repositories/auth_repository.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/data/datasources/firebase_services.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/data/datasources/firebase_storage_service/firebase_storage.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/data/models/user_model.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/domain/entities/user_entity.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseServices _firebaseServices;

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:parkeasy/core/exeption/auth_exeption.dart';
-import 'package:parkeasy/features/auth/data/models/user_model.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/data/models/user_model.dart';
 
 class FirebaseFirestoreService {
   final FirebaseFirestore _firestore;
