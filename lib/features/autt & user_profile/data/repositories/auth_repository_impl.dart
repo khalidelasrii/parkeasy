@@ -70,10 +70,9 @@ class AuthRepositoryImpl implements AuthRepository {
         .checkUserExists(userCredential.uid);
 
     if (exists) {
-      final UserEntity user = await _firebaseServices
-          .firebaseFirestorService
+      final UserModel user = await _firebaseServices.firebaseFirestorService
           .getUserData(userCredential.uid);
-      return Right(user);
+      return Right(user.toUserEntity());
     } else {
       final UserEntity newUser = UserEntity(
         accountStatus: AccountStatus.initial,
@@ -97,7 +96,6 @@ class AuthRepositoryImpl implements AuthRepository {
       return left(AuthException(e.toString()));
     }
   }
-
 
   @override
   Future<Either<AuthException, UserEntity>> saveUserInfoUseCase(
@@ -123,7 +121,7 @@ class AuthRepositoryImpl implements AuthRepository {
     if (exists) {
       final user = await _firebaseServices.firebaseFirestorService
           .updateUserInfo(UserModel.fromUserEntity(userEntity));
-      return Right(user);
+      return Right(user.toUserEntity());
     } else {
       final user = await _firebaseServices.firebaseFirestorService
           .createUserData(UserModel.fromUserEntity(userEntity));
@@ -148,8 +146,10 @@ class AuthRepositoryImpl implements AuthRepository {
             phoneNumber: userCredential.phoneNumber,
           );
         }
-        return await _firebaseServices.firebaseFirestorService
+
+        final userr = await _firebaseServices.firebaseFirestorService
             .getUserData(userCredential.uid);
+        return userr.toUserEntity();
       }
       return null;
     } catch (e) {

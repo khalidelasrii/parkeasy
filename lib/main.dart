@@ -120,7 +120,7 @@ class _MyAppState extends State<MyApp> {
           return Routes.router;
       }
     }
-    return Routes.router..go(Routes.authPage);
+    return Routes.router;
   }
 
   @override

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:parkeasy/core/constant/constants.dart';
 import 'package:parkeasy/features/autt%20&%20user_profile/domain/entities/user_entity.dart';
 import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/theme_bloc/theme_cubit.dart';
+import 'package:parkeasy/routes.dart';
+import 'package:image_picker/image_picker.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -14,84 +18,142 @@ class UserProfilePage extends StatefulWidget {
 class _UserProfilePageState extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        title: const Text('Mon profil'),
-      ),
-      body: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, authState) {
-          final user = authState.user;
-          return BlocBuilder<ThemeBloc, ThemeState>(
-            builder: (context, themeState) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    _buildProfileHeader(user),
-                    const SizedBox(height: 20),
-                    _buildProfileOption(
-                      icon: Icons.language,
-                      title: 'Langues',
-                      onTap: () => _changeLanguage(context),
-                    ),
-                    _buildProfileOption(
-                      icon: Icons.info,
-                      title: 'À propos',
-                      onTap: () => _showAbout(context),
-                    ),
-                    _buildProfileOption(
-                      icon: Icons.contact_support,
-                      title: 'Contactez-nous',
-                      onTap: () => _contactUs(context),
-                    ),
-                    _buildProfileOption(
-                      icon: Icons.brightness_6,
-                      title: 'Dark Mode',
-                      trailing: Switch(
-                        value: themeState.themeMode == ThemeMode.dark,
-                        onChanged: (value) =>
-                            context.read<ThemeBloc>().toggleTheme(),
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+    final screenHeight = screenSize.height;
+
+    return BlocBuilder<ThemeBloc, ThemeState>(builder: (context, themeState) {
+      return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: true,
+          title: Center(
+            child: Text(
+              'Mon profil',
+              style: TextStyle(
+                  fontSize: 20 * MediaQuery.of(context).textScaler.scale(1.0)),
+            ),
+          ),
+        ),
+        body: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, authState) {
+            final user = authState.user;
+            return LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: constraints.maxHeight * 0.05,
+                    horizontal: constraints.maxWidth * 0.05,
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: themeState.themeMode == ThemeMode.dark
+                            ? bluecolor
+                            : Colors.transparent,
                       ),
-                      onTap: () {},
+                      color: themeState.themeMode == ThemeMode.dark
+                          ? Colors.black
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    _buildProfileOption(
-                      icon: Icons.business,
-                      title: 'Devenir Manager ?',
-                      onTap: () => _becomeManager(context),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: constraints.maxHeight * 0.04,
+                        horizontal: constraints.maxWidth * 0.05,
+                      ),
+                      child: Column(
+                        children: [
+                          _buildProfileHeader(user, constraints),
+                          SizedBox(height: constraints.maxHeight * 0.02),
+                          Expanded(
+                            child: ListView(
+                              children: [
+                                _buildProfileOption(
+                                  icon: Icons.edit,
+                                  title: 'Changer le nom',
+                                  onTap: () => _changeUserName(user!),
+                                ),
+                                _buildProfileOption(
+                                  icon: Icons.language,
+                                  title: 'Langues',
+                                  onTap: () => _changeLanguage(context),
+                                ),
+                                _buildProfileOption(
+                                  icon: Icons.info,
+                                  title: 'À propos',
+                                  onTap: () => _showAbout(context),
+                                ),
+                                _buildProfileOption(
+                                  icon: Icons.contact_support,
+                                  title: 'Contactez-nous',
+                                  onTap: () => _contactUs(context),
+                                ),
+                                _buildProfileOption(
+                                  icon: Icons.brightness_6,
+                                  title: 'Dark Mode',
+                                  trailing: Switch(
+                                    value:
+                                        themeState.themeMode == ThemeMode.dark,
+                                    onChanged: (value) =>
+                                        context.read<ThemeBloc>().toggleTheme(),
+                                  ),
+                                  onTap: () {},
+                                ),
+                                _buildProfileOption(
+                                  icon: Icons.business,
+                                  title: 'Devenir Manager ?',
+                                  onTap: () => _becomeManager(context),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: constraints.maxHeight * 0.02),
+                          _buildLogoutButton(context),
+                        ],
+                      ),
                     ),
-                    Spacer(),
-                    _buildLogoutButton(context),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      );
+    });
   }
 
-  Widget _buildProfileHeader(UserEntity? user) {
+  Widget _buildProfileHeader(UserEntity? user, BoxConstraints constraints) {
     return Column(
       children: [
-        CircleAvatar(
-          radius: 40,
-          backgroundImage:
-              user?.profileUrl != null ? NetworkImage(user!.profileUrl!) : null,
-          child: user?.profileUrl == null ? Icon(Icons.person, size: 40) : null,
-        ),
-        const SizedBox(height: 20),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
+        Stack(
+          alignment: Alignment.bottomRight,
           children: [
-            Text(user?.name ?? 'User', style: TextStyle(fontSize: 20)),
+            CircleAvatar(
+              radius: constraints.maxWidth * 0.1,
+              backgroundImage: user?.profileUrl != null
+                  ? NetworkImage(user!.profileUrl!)
+                  : null,
+              child: user?.profileUrl == null
+                  ? Icon(Icons.person, size: constraints.maxWidth * 0.1)
+                  : null,
+            ),
             GestureDetector(
               onTap: _changeProfileImage,
-              child: Icon(Icons.edit, size: 20),
+              child: CircleAvatar(
+                backgroundColor: Colors.blue,
+                radius: constraints.maxWidth * 0.03,
+                child: Icon(Icons.camera_alt,
+                    size: constraints.maxWidth * 0.04, color: Colors.white),
+              ),
             ),
           ],
+        ),
+        SizedBox(height: constraints.maxHeight * 0.02),
+        Text(
+          user?.name ?? "Nom d'utilisateur",
+          style: TextStyle(
+              fontSize: 18 * MediaQuery.of(context).textScaler.scale(1.0),
+              fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -105,22 +167,108 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }) {
     return ListTile(
       leading: Icon(icon),
-      title: Text(title),
+      title: Text(title,
+          style: TextStyle(
+              fontSize: 16 * MediaQuery.of(context).textScaler.scale(1.0))),
       trailing: trailing,
       onTap: onTap,
     );
   }
 
   Widget _buildLogoutButton(BuildContext context) {
-    return ElevatedButton.icon(
-      onPressed: () => _logout(context),
-      icon: Icon(Icons.logout),
-      label: Text('Se déconnecter'),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () => _logout(context),
+        icon: const Icon(Icons.logout),
+        label: Text('Se déconnecter',
+            style: TextStyle(
+                fontSize: 16 * MediaQuery.of(context).textScaler.scale(1.0))),
+      ),
+    );
+  }
+
+  void _changeUserName(UserEntity user) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String newName = user.name ?? '';
+        return AlertDialog(
+          title: Text('Changer le nom'),
+          content: TextField(
+            onChanged: (value) {
+              newName = value;
+            },
+            decoration: InputDecoration(hintText: "Nouveau nom"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Annuler'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Confirmer'),
+              onPressed: () {
+                if (newName.isNotEmpty) {
+                  // context.read<AuthBloc>().add(UpdateUserNameEvent(newName));
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
   void _changeProfileImage() {
-    // Logique pour changer l'image de profil
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Changer l\'image de profil'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Choisir depuis la galerie'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImageFromGallery();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Prendre une photo'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _takePhoto();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _pickImageFromGallery() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      // context.read<AuthBloc>().add(UpdateProfileImageEvent(image.path));
+    }
+  }
+
+  void _takePhoto() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    if (photo != null) {
+      // context.read<AuthBloc>().add(UpdateProfileImageEvent(photo.path));
+    }
   }
 
   void _changeLanguage(BuildContext context) {
@@ -141,7 +289,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   void _logout(BuildContext context) {
     context.read<AuthBloc>().add(SingOutEvent());
-
-    // context.go(Routes.authPage);
+    context.go(Routes.authPage);
   }
 }

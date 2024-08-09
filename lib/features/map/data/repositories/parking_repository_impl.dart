@@ -1,6 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:parkeasy/features/map/data/models/parking_model.dart';
-import 'dart:convert';
+
 
 import 'package:parkeasy/features/map/domain/repositories/parking_repository.dart';
 

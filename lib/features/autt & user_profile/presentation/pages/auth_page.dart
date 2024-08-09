@@ -33,7 +33,6 @@ class _AuthPageState extends State<AuthPage> {
       resizeToAvoidBottomInset: false,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          print('Auth State -------------- $state -----------------');
           if (state.status == AppStatus.success &&
               state.verificationId != null) {
             final AuthInfo authInfo =

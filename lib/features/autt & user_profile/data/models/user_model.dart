@@ -5,19 +5,31 @@ import 'package:parkeasy/core/constant/enum.dart';
 part 'user_model.g.dart';
 
 @JsonSerializable()
-class UserModel extends UserEntity {
+class UserModel {
+  final String? id;
+  final String? name;
+  final String? email;
+  final String? phoneNumber;
+  final AccountStatus? accountStatus;
+  final UserRole? userRole;
+  final String? carPlateNumber;
+  final String? parkingSpot;
+  final String? cardFront;
+  final String? cardBack;
+  final String? profileUrl;
+  
   const UserModel({
-    super.id,
-    super.name,
-    super.email,
-    super.phoneNumber,
-    super.accountStatus,
-    super.userRole,
-    super.carPlateNumber,
-    super.parkingSpot,
-    super.cardFront,
-    super.cardBack,
-    super.profileUrl,
+    this.id,
+    this.name,
+    this.email,
+    this.phoneNumber,
+    this.accountStatus,
+    this.userRole,
+    this.carPlateNumber,
+    this.parkingSpot,
+    this.cardFront,
+    this.cardBack,
+    this.profileUrl,
   });
 
   factory UserModel.fromUserEntity(UserEntity entity) {

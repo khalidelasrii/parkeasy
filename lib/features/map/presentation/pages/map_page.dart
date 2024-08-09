@@ -70,8 +70,6 @@ class ParkingList extends StatelessWidget {
           return ListView.builder(
             itemCount: state.parkingMarkers.length,
             itemBuilder: (context, index) {
-              // final parking =
-              //     state.parkingMarkers.elementAt(index).infoWindow.title!;
               return ParkingCard();
             },
           );

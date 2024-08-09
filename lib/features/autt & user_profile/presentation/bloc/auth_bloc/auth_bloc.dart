@@ -80,12 +80,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   FutureOr<void> _onSingOut(SingOutEvent event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(status: AppStatus.loading));
     final out = await singOutUseCase();
     out.fold((exp) {
       emit(state.copyWith(status: AppStatus.error, error: exp.code));
     }, (_) {
-      emit(state.copyWith(user: null));
-      add(GetCurrentUserEvent());
+      emit(state.copyWith(status: AppStatus.unknown, user: null));
     });
   }
 
