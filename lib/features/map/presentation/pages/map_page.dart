@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:parkeasy/core/constant/constants.dart';
 import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:parkeasy/features/map/presentation/bloc/map_bloc/map_bloc.dart';
@@ -24,9 +24,15 @@ class MapPage extends StatelessWidget {
 
 class MapPageContent extends StatelessWidget {
   const MapPageContent({super.key});
+  Future<String> loadMapStyle(String path) async {
+    return await rootBundle.loadString(path);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+    final ThemeData theme = Theme.of(context);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -39,19 +45,34 @@ class MapPageContent extends StatelessWidget {
                     target: state.currentLocation!,
                     zoom: 14,
                   ),
-                  onMapCreated: (GoogleMapController controller) {
+                  onMapCreated: (GoogleMapController controller) async {
                     context
                         .read<MapBloc>()
                         .add(UpdateCurrentLocation(state.currentLocation!));
+                    String mapStyle = await loadMapStyle(
+                        theme.brightness == Brightness.dark
+                            ? 'assets/dark_map_style.json'
+                            : 'assets/light_map_style.json');
+
+                    controller.setMapStyle(mapStyle);
                   },
                   markers: state.parkingMarkers,
                 );
               } else {
-                return const Center(child: CircularProgressIndicator());
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: theme.colorScheme.secondary,
+                  ),
+                );
               }
             },
           ),
-          const Center(child: ParkingList()),
+          // Center(
+          //   child: SizedBox(
+          //     height: size.height * 0.6,
+          //     child: const ParkingList(),
+          //   ),
+          // ),
         ],
       ),
       floatingActionButton: const MyfloatingActionButton(),
@@ -70,7 +91,7 @@ class ParkingList extends StatelessWidget {
           return ListView.builder(
             itemCount: state.parkingMarkers.length,
             itemBuilder: (context, index) {
-              return ParkingCard();
+              return const ParkingCard();
             },
           );
         } else {
@@ -82,30 +103,39 @@ class ParkingList extends StatelessWidget {
 }
 
 class ParkingCard extends StatelessWidget {
-  // final Map<String, dynamic> parking;
-
-  const ParkingCard({
-    super.key,
-    //  required this.parking
-  });
+  const ParkingCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+    final ThemeData theme = Theme.of(context);
+
     return GestureDetector(
       onTap: () {
         // Handle navigation to the selected parking spot
       },
       child: Card(
         elevation: 3,
+        margin: EdgeInsets.symmetric(
+          vertical: size.height * 0.01,
+          horizontal: size.width * 0.05,
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(size.width * 0.03),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Text(parking['name'],
-              //     style: const TextStyle(fontWeight: FontWeight.bold)),
-              // Text('Places disponibles: ${parking['availableSpots']}'),
-              // Text('Distance: ${parking['distance']} km'),
+              Text('Parking Name',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                  )),
+              SizedBox(height: size.height * 0.01),
+              Text('Places disponibles: 5', style: theme.textTheme.bodyMedium),
+              SizedBox(height: size.height * 0.005),
+              Text('Distance: 2 km',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.secondary,
+                  )),
             ],
           ),
         ),
@@ -126,26 +156,41 @@ class _MyfloatingActionButtonState extends State<MyfloatingActionButton> {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+    final ThemeData theme = Theme.of(context);
+
     return Padding(
-      padding: const EdgeInsets.only(left: 30.0),
+      padding: EdgeInsets.only(left: size.width * 0.08),
       child: Row(
         children: [
           Expanded(
             child: Container(
+              height: size.height * 0.06,
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: bluecolor, width: 2),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black26, blurRadius: 4)
+                color: theme.cardColor,
+                border: Border.all(color: theme.primaryColor, width: 2),
+                borderRadius: BorderRadius.circular(size.width * 0.05),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.shadowColor.withOpacity(0.3),
+                    blurRadius: 4,
+                  ),
                 ],
               ),
               child: TextField(
                 controller: searchController,
-                decoration: const InputDecoration(
+                style: theme.textTheme.bodyMedium,
+                decoration: InputDecoration(
                   hintText: 'Rechercher...',
-                  prefixIcon: Icon(Icons.search),
+                  hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.hintColor,
+                  ),
+                  prefixIcon: Icon(Icons.search, color: theme.iconTheme.color),
                   border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: size.width * 0.04,
+                    vertical: size.height * 0.015,
+                  ),
                 ),
                 onChanged: (query) {
                   context.read<MapBloc>().add(SearchParking(query: query));
@@ -153,32 +198,44 @@ class _MyfloatingActionButtonState extends State<MyfloatingActionButton> {
               ),
             ),
           ),
-          const SizedBox(width: 10),
-          BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-            return GestureDetector(
-              onTap: () {
-                context.go(Routes.profile);
-              },
-              child: CircleAvatar(
-                backgroundColor: bluecolor,
-                radius: 30,
-                child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(70)),
-                    child: state.user?.profileUrl == null
-                        ? const CircularProgressIndicator()
-                        : CachedNetworkImage(
-                            imageUrl: state.user!.profileUrl!,
-                            fit: BoxFit.cover,
-                            height: 70,
-                            width: 70,
-                          ),
+          SizedBox(width: size.width * 0.03),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              return GestureDetector(
+                onTap: () {
+                  context.go(Routes.profile);
+                },
+                child: CircleAvatar(
+                  backgroundColor: theme.primaryColor,
+                  radius: size.width * 0.06,
+                  child: Padding(
+                    padding: EdgeInsets.all(size.width * 0.005),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(size.width * 0.055),
+                      child: state.user?.profileUrl == null
+                          ? CircularProgressIndicator(
+                              color: theme.colorScheme.secondary,
+                              strokeWidth: 2,
+                            )
+                          : CachedNetworkImage(
+                              imageUrl: state.user!.profileUrl!,
+                              fit: BoxFit.cover,
+                              height: size.width * 0.11,
+                              width: size.width * 0.11,
+                              placeholder: (context, url) =>
+                                  CircularProgressIndicator(
+                                color: theme.colorScheme.secondary,
+                                strokeWidth: 2,
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error, color: Colors.red),
+                            ),
+                    ),
                   ),
                 ),
-              ),
-            );
-          }),
+              );
+            },
+          ),
         ],
       ),
     );

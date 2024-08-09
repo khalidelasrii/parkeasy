@@ -2,7 +2,6 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:parkeasy/core/constant/enum.dart';
 import 'package:parkeasy/core/services/local_service/local_controller.dart';
 import 'package:parkeasy/core/services/shared_pref_service.dart';
 import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/auth_bloc/auth_bloc.dart';
@@ -20,17 +19,24 @@ void main() async {
   await FirebaseAppCheck.instance
       .activate(androidProvider: AndroidProvider.debug);
   await di.init();
-  runApp(
-    MultiBlocProvider(
+  runApp(const Parckeasy());
+}
+
+class Parckeasy extends StatelessWidget {
+  const Parckeasy({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => LanguageBloc()),
-        BlocProvider(create: (_) => ThemeBloc()),
+        BlocProvider(create: (_) => di.sl<ThemeBloc>()),
         BlocProvider(
             create: (_) => di.sl<AuthBloc>()..add(GetCurrentUserEvent())),
       ],
       child: const MyApp(),
-    ),
-  );
+    );
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -61,67 +67,75 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LanguageBloc, LanguageState>(
-      builder: (context, languageState) {
-        return BlocBuilder<ThemeBloc, ThemeState>(
-          builder: (context, themeState) {
-            return BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                return MaterialApp.router(
-                  debugShowCheckedModeBanner: false,
-                  title: 'Parkeasy',
-                  theme: themeState.themeData,
-                  darkTheme: themeState.darkTheme,
-                  themeMode: themeState.themeMode,
-                  supportedLocales: const [
-                    Locale('fr'),
-                    Locale('en'),
-                    Locale('ar'),
-                  ],
-                  localizationsDelegates: const [
-                    AppLocalizations.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  locale: Locale(languageState.selectedLanguage),
-                  localeResolutionCallback: (deviceLocale, supportedLocales) {
-                    for (var locale in supportedLocales) {
-                      if (deviceLocale != null &&
-                          deviceLocale.languageCode == locale.languageCode) {
-                        return deviceLocale;
-                      }
-                    }
-                    return supportedLocales.first;
-                  },
-                  routerConfig: _getRouterConfig(context, state),
-                );
-              },
-            );
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<LanguageBloc, LanguageState>(
+          listener: (context, languageState) {
+            setState(() {});
           },
-        );
-      },
+        ),
+        BlocListener<ThemeBloc, ThemeState>(
+          listener: (context, themeState) {
+            setState(() {});
+          },
+        ),
+      ],
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
+          final themeState = context.watch<ThemeBloc>().state;
+          final languageState = context.watch<LanguageBloc>().state;
+
+          return MaterialApp.router(
+              debugShowCheckedModeBanner: false,
+              title: 'Parkeasy',
+              theme: themeState.themeMode,
+              supportedLocales: const [
+                Locale('fr'),
+                Locale('en'),
+                Locale('ar'),
+              ],
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              locale: Locale(languageState.selectedLanguage),
+              localeResolutionCallback: (deviceLocale, supportedLocales) {
+                for (var locale in supportedLocales) {
+                  if (deviceLocale != null &&
+                      deviceLocale.languageCode == locale.languageCode) {
+                    return deviceLocale;
+                  }
+                }
+                return supportedLocales.first;
+              },
+              routerConfig: Routes.router
+              //  _getRouterConfig(context, authState),
+              );
+        },
+      ),
     );
   }
 
-  RouterConfig<Object> _getRouterConfig(BuildContext context, AuthState state) {
-    if (state.status == AppStatus.unknown && state.user == null) {
-      return Routes.router..go(Routes.waitingPage);
-    } else if (state.user != null) {
-      switch (state.user?.accountStatus) {
-        case AccountStatus.initial:
-          return Routes.router..go(Routes.informationCompleteUser);
-        case AccountStatus.pending:
-        case AccountStatus.blocked:
-          return Routes.router..go(Routes.registrationConfirmationPage);
-        case AccountStatus.accepted:
-          return Routes.router..go(Routes.mapPage);
-        default:
-          return Routes.router;
-      }
-    }
-    return Routes.router;
-  }
+  // RouterConfig<Object> _getRouterConfig(BuildContext context, AuthState state) {
+  //   if (state.status == AppStatus.unknown && state.user == null) {
+  //     return Routes.router..go(Routes.waitingPage);
+  //   } else if (state.user != null) {
+  //     switch (state.user?.accountStatus) {
+  //       case AccountStatus.initial:
+  //         return Routes.router..go(Routes.informationCompleteUser);
+  //       case AccountStatus.pending:
+  //       case AccountStatus.blocked:
+  //         return Routes.router..go(Routes.registrationConfirmationPage);
+  //       case AccountStatus.accepted:
+  //         return Routes.router..go(Routes.profile);
+  //       default:
+  //         return Routes.router;
+  //     }
+  //   }
+  //   return Routes.router;
+  // }
 
   @override
   void dispose() {

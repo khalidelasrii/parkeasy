@@ -16,110 +16,123 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
+  // final screenSize = MediaQuery.of(context).size;
+// final screenWidth = screenSize.width;
+// final screenHeight = screenSize.height
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final screenWidth = screenSize.width;
-    final screenHeight = screenSize.height;
-
-    return BlocBuilder<ThemeBloc, ThemeState>(builder: (context, themeState) {
-      return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: true,
-          title: Center(
-            child: Text(
-              'Mon profil',
-              style: TextStyle(
-                  fontSize: 20 * MediaQuery.of(context).textScaler.scale(1.0)),
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, themeState) {
+        final isDarkMode = themeState.themeMode.brightness == Brightness.dark;
+        return Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+                onPressed: () {
+                  context.go(Routes.mapPage);
+                },
+                icon: const Icon(Icons.arrow_back)),
+            flexibleSpace: SafeArea(
+              child: Center(
+                child: Text(
+                  'Mon profil',
+                  style: TextStyle(
+                    fontSize: 20 * MediaQuery.of(context).textScaler.scale(1.0),
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-        body: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, authState) {
-            final user = authState.user;
-            return LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: constraints.maxHeight * 0.05,
-                    horizontal: constraints.maxWidth * 0.05,
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: themeState.themeMode == ThemeMode.dark
-                            ? bluecolor
-                            : Colors.transparent,
-                      ),
-                      color: themeState.themeMode == ThemeMode.dark
-                          ? Colors.black
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+          body: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, authState) {
+              final user = authState.user;
+              return LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: constraints.maxHeight * 0.05,
+                      horizontal: constraints.maxWidth * 0.05,
                     ),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: constraints.maxHeight * 0.04,
-                        horizontal: constraints.maxWidth * 0.05,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: isDarkMode ? bluecolor : Colors.transparent,
+                        ),
+                        color: isDarkMode ? Colors.black : Colors.white,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Column(
-                        children: [
-                          _buildProfileHeader(user, constraints),
-                          SizedBox(height: constraints.maxHeight * 0.02),
-                          Expanded(
-                            child: ListView(
-                              children: [
-                                _buildProfileOption(
-                                  icon: Icons.edit,
-                                  title: 'Changer le nom',
-                                  onTap: () => _changeUserName(user!),
-                                ),
-                                _buildProfileOption(
-                                  icon: Icons.language,
-                                  title: 'Langues',
-                                  onTap: () => _changeLanguage(context),
-                                ),
-                                _buildProfileOption(
-                                  icon: Icons.info,
-                                  title: 'À propos',
-                                  onTap: () => _showAbout(context),
-                                ),
-                                _buildProfileOption(
-                                  icon: Icons.contact_support,
-                                  title: 'Contactez-nous',
-                                  onTap: () => _contactUs(context),
-                                ),
-                                _buildProfileOption(
-                                  icon: Icons.brightness_6,
-                                  title: 'Dark Mode',
-                                  trailing: Switch(
-                                    value:
-                                        themeState.themeMode == ThemeMode.dark,
-                                    onChanged: (value) =>
-                                        context.read<ThemeBloc>().toggleTheme(),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: constraints.maxHeight * 0.04,
+                          horizontal: constraints.maxWidth * 0.05,
+                        ),
+                        child: Column(
+                          children: [
+                            _buildProfileHeader(user, constraints),
+                            SizedBox(height: constraints.maxHeight * 0.02),
+                            Expanded(
+                              child: ListView(
+                                children: [
+                                  _buildProfileOption(
+                                      icon: Icons.account_circle_outlined,
+                                      title: '${user?.name}',
+                                      onTap: () => _changeUserName(user!),
+                                      trailing: const Icon(Icons.edit)),
+                                  _buildProfileOption(
+                                    icon: Icons.language,
+                                    title: 'Langues',
+                                    onTap: () => _changeLanguage(context),
+                                    trailing: const Icon(
+                                        Icons.keyboard_arrow_right_sharp),
                                   ),
-                                  onTap: () {},
-                                ),
-                                _buildProfileOption(
-                                  icon: Icons.business,
-                                  title: 'Devenir Manager ?',
-                                  onTap: () => _becomeManager(context),
-                                ),
-                              ],
+                                  _buildProfileOption(
+                                    icon: Icons.info,
+                                    title: 'À propos',
+                                    onTap: () => _showAbout(context),
+                                    trailing: const Icon(
+                                        Icons.keyboard_arrow_right_sharp),
+                                  ),
+                                  _buildProfileOption(
+                                    icon: Icons.contact_support,
+                                    title: 'Contactez-nous',
+                                    onTap: () => _contactUs(context),
+                                    trailing: const Icon(
+                                        Icons.keyboard_arrow_right_sharp),
+                                  ),
+                                  _buildProfileOption(
+                                    icon: Icons.brightness_6,
+                                    title: 'Dark Mode',
+                                    trailing: Switch(
+                                      value: isDarkMode,
+                                      onChanged: (value) {
+                                        context.read<ThemeBloc>().toggleTheme();
+                                      },
+                                    ),
+                                    onTap: () {},
+                                  ),
+                                  _buildProfileOption(
+                                    icon: Icons.business,
+                                    title: 'Devenir Manager ?',
+                                    onTap: () => _becomeManager(context),
+                                    trailing: const Icon(
+                                        Icons.keyboard_arrow_right_sharp),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          SizedBox(height: constraints.maxHeight * 0.02),
-                          _buildLogoutButton(context),
-                        ],
+                            SizedBox(height: constraints.maxHeight * 0.02),
+                            _buildLogoutButton(context),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      );
-    });
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildProfileHeader(UserEntity? user, BoxConstraints constraints) {
@@ -148,13 +161,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             ),
           ],
         ),
-        SizedBox(height: constraints.maxHeight * 0.02),
-        Text(
-          user?.name ?? "Nom d'utilisateur",
-          style: TextStyle(
-              fontSize: 18 * MediaQuery.of(context).textScaler.scale(1.0),
-              fontWeight: FontWeight.bold),
-        ),
+        SizedBox(height: constraints.maxHeight * 0.04),
       ],
     );
   }
@@ -194,12 +201,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
       builder: (BuildContext context) {
         String newName = user.name ?? '';
         return AlertDialog(
-          title: Text('Changer le nom'),
+          title: const Text('Changer le nom'),
           content: TextField(
             onChanged: (value) {
               newName = value;
             },
-            decoration: InputDecoration(hintText: "Nouveau nom"),
+            decoration: const InputDecoration(hintText: "Nouveau nom"),
           ),
           actions: <Widget>[
             TextButton(
@@ -228,7 +235,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Changer l\'image de profil'),
+          title: const Text('Changer l\'image de profil'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -256,10 +263,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   void _pickImageFromGallery() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      // context.read<AuthBloc>().add(UpdateProfileImageEvent(image.path));
+    try {
+      final ImagePicker _picker = ImagePicker();
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        // context.read<AuthBloc>().add(UpdateProfileImageEvent(image.path));
+        print("Image sélectionnée : ${image.path}");
+      } else {
+        print("Aucune image sélectionnée");
+      }
+    } catch (e) {
+      print("Erreur lors de la sélection de l'image : $e");
+      // Vous pouvez également afficher une boîte de dialogue d'erreur ici
     }
   }
 

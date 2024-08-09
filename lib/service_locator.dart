@@ -13,6 +13,7 @@ import 'package:parkeasy/features/autt%20&%20user_profile/domain/usecases/sign_i
 import 'package:parkeasy/features/autt%20&%20user_profile/domain/usecases/sing_out_use_case.dart';
 import 'package:parkeasy/features/autt%20&%20user_profile/domain/usecases/verification_o_t_p_use_case.dart';
 import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:parkeasy/features/autt%20&%20user_profile/presentation/bloc/theme_bloc/theme_cubit.dart';
 import 'package:parkeasy/features/map/data/repositories/location_repository_impl.dart';
 import 'package:parkeasy/features/map/data/repositories/parking_repository_impl.dart';
 import 'package:parkeasy/features/map/domain/repositories/location_repository.dart';
@@ -80,4 +81,6 @@ Future<void> init() async {
       getCurrentLocationUseCase: sl(),
       getNearbyParkingsUseCase: sl(),
       sharedPrefService: sl<SharedPrefService>()));
+
+  sl.registerFactory(() => ThemeBloc(sl<SharedPrefService>()));
 }

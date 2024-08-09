@@ -1,0 +1,106 @@
+[
+    {
+        "featureType": "landscape",
+        "elementType": "geometry.fill",
+        "stylers": [
+            { "visibility": "on" },
+            { "color": "#e8e8e8" }
+        ]
+    },
+    {
+        "featureType": "administrative",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            { "color": "#a0a0a0" },
+            { "visibility": "on" },
+            { "weight": 1 }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "geometry.fill",
+        "stylers": [
+            { "visibility": "on" },
+            { "color": "#b3d4ff" }
+        ]
+    },
+    {
+        "elementType": "labels.text.fill",
+        "stylers": [
+            { "visibility": "on" },
+            { "color": "#333333" }
+        ]
+    },
+    {
+        "elementType": "labels.text.stroke",
+        "stylers": [
+            { "visibility": "on" },
+            { "weight": 0.1 },
+            { "color": "#ffffff" }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "geometry",
+        "stylers": [
+            { "visibility": "on" },
+            { "color": "#d9d9d9" }
+        ]
+    },
+    {
+        "featureType": "poi.park",
+        "elementType": "geometry.fill",
+        "stylers": [
+            { "visibility": "on" },
+            { "color": "#c8e6c9" }
+        ]
+    },
+    {
+        "featureType": "transit.station.airport",
+        "elementType": "geometry.fill",
+        "stylers": [
+            { "visibility": "on" },
+            { "color": "#d9d9d9" }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "labels.text",
+        "stylers": [
+            { "visibility": "simplified" },
+            { "lightness": 0 }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "geometry.fill",
+        "stylers": [
+            { "visibility": "on" },
+            { "color": "#ffffff" }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            { "visibility": "on" },
+            { "color": "#d9d9d9" }
+        ]
+    },
+    {
+        "featureType": "transit.line",
+        "elementType": "geometry.fill",
+        "stylers": [
+            { "visibility": "on" },
+            { "color": "#e0e0e0" }
+        ]
+    },
+    {
+        "featureType": "transit.line",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            { "visibility": "on" },
+            { "color": "#c0c0c0" }
+        ]
+    }
+]
