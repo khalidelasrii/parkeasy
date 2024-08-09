@@ -136,12 +136,23 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Widget _buildProfileHeader(UserEntity? user, BoxConstraints constraints) {
-    return Column(
-      children: [
-        Stack(
-          alignment: Alignment.bottomRight,
-          children: [
-            CircleAvatar(
+    return Padding(
+      padding: EdgeInsets.only(bottom: constraints.maxHeight * 0.04),
+      child: Stack(
+        alignment: Alignment.bottomRight,
+        children: [
+          Container(
+            width: constraints.maxWidth * 0.2,
+            height: constraints.maxWidth * 0.2,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary,
+                width: 3.0,
+              ),
+            ),
+            child: CircleAvatar(
+              backgroundColor: Colors.blue,
               radius: constraints.maxWidth * 0.1,
               backgroundImage: user?.profileUrl != null
                   ? NetworkImage(user!.profileUrl!)
@@ -150,19 +161,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   ? Icon(Icons.person, size: constraints.maxWidth * 0.1)
                   : null,
             ),
-            GestureDetector(
-              onTap: _changeProfileImage,
-              child: CircleAvatar(
-                backgroundColor: Colors.blue,
-                radius: constraints.maxWidth * 0.03,
-                child: Icon(Icons.camera_alt,
-                    size: constraints.maxWidth * 0.04, color: Colors.white),
-              ),
+          ),
+          GestureDetector(
+            onTap: _changeProfileImage,
+            child: CircleAvatar(
+              backgroundColor: Colors.blue,
+              radius: constraints.maxWidth * 0.03,
+              child: Icon(Icons.camera_alt,
+                  size: constraints.maxWidth * 0.04, color: Colors.white),
             ),
-          ],
-        ),
-        SizedBox(height: constraints.maxHeight * 0.04),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -274,7 +284,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
       }
     } catch (e) {
       print("Erreur lors de la sélection de l'image : $e");
-      // Vous pouvez également afficher une boîte de dialogue d'erreur ici
     }
   }
 
